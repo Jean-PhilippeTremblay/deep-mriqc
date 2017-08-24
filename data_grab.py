@@ -33,7 +33,7 @@ def get_all_data(sub_list):
     data_list = [f[0] for f in f_list]
     lab_list = [f[1] for f in f_list]
     data_list = [d for d in data_list if isinstance(d, numpy.ndarray)]
-    lab_list = [int(l) for l in lab_list if l]
+    lab_list = [int(float(l)) for l in lab_list if l]
     return data_list, lab_list
 
 def all_data():
