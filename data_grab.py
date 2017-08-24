@@ -1,5 +1,6 @@
 from nilearn import image
 import numpy
+from multiprocessing import Pool
 
 def get_slices_normalised(slices, nif):
     data = nif.get_data()
@@ -27,7 +28,8 @@ def get_data(sub_id_lab):
     return get_slices_normalised(40, sub_img), label
 
 def get_all_data(sub_list):
-    f_list =  list(map(get_data, sub_list))
+    pool = Pool()
+    f_list =  list(pool.map(get_data, sub_list))
     data_list = [f[0] for f in f_list if f]
     lab_list = [f[1] for f in f_list if f]
     return data_list, lab_list
