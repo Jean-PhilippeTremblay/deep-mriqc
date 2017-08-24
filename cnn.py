@@ -29,7 +29,8 @@ model_name = 'keras_cifar10_trained_model.h5'
 
 #test_proportion of 3 means 1/3 so 33% test and 67% train
 def shuffle(matrix, target, test_proportion):
-    ratio = matrix.shape[0]/test_proportion
+    ratio = int(matrix.shape[0]/test_proportion)
+    print(ratio)
     X_train = matrix[ratio:,:]
     X_test =  matrix[:ratio,:]
     Y_train = target[ratio:,:]
