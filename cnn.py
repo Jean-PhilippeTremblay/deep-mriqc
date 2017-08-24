@@ -47,6 +47,8 @@ randomize = np.arange(17040)
 np.random.shuffle(randomize)
 X = data_s[randomize]
 Y = labels_s[randomize]
+X = X[:len(X)/2,]
+Y = Y[:len(Y)/2,]
 x_train, x_test, y_train, y_test = shuffle(X, Y, 3)
 
 x_train = x_train.reshape(x_train.shape[0], 256, 256, 1)
