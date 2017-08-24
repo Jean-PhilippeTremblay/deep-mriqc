@@ -31,11 +31,11 @@ model_name = 'keras_cifar10_trained_model.h5'
 def shuffle(matrix, target, test_proportion):
     ratio = int(matrix.shape[0]/test_proportion)
     print(ratio)
-    X_train = matrix[ratio:,:]
-    X_test =  matrix[:ratio,:]
-    Y_train = target[ratio:,:]
-    Y_test =  target[:ratio,:]
-    return X_train, X_test, Y_train, Y_test
+    x_train = matrix[ratio:,:]
+    x_test =  matrix[:ratio,:]
+    y_train = target[ratio:,:]
+    y_test =  target[:ratio,:]
+    return x_train, x_test, y_train, y_test
 
 dat, lab = data_grab.all_data()
 dat_n = np.array(dat)
@@ -49,14 +49,14 @@ X = data_s[randomize]
 Y = labels_s[randomize]
 x_train, x_test, y_train, y_test = shuffle(X, Y, 3)
 
-X_train = x_train.reshape(x_train.shape[0], 256, 256, 1)
-X_test = x_test.reshape(x_test.shape[0], 256, 256, 1)
+x_train = x_train.reshape(x_train.shape[0], 256, 256, 1)
+x_test = x_test.reshape(x_test.shape[0], 256, 256, 1)
 
-X_train = X_train.astype('float32')
-X_test = X_test.astype('float32')
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
 
-X_train/=255
-X_test/=255
+x_train/=255
+x_test/=255
 
 #(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 print('x_train shape:', x_train.shape)
