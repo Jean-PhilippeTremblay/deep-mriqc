@@ -13,17 +13,24 @@ def resample_img(moving, fixed):
     return image.resample_to_img(moving, fixed)
 
 
-def get_data(sub_id):
-    sub_id = sub_id.strip()
+def get_data(sub_id_lab):
+    sub_id_lab = sub_id_lab.strip()
+    sub_id = sub_id_lab.split(',')[0]
+    label = sub_id_lab.split(',')[1]
     base_dir = '/dbh_data/deep_abide'
     fixed = '50002'
     file_path = '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=sub_id)
-    sub_img = resample_img(file_path, '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=fixed))
-    return get_slices_normalised(40, sub_img)
+    try:
+        sub_img = resample_img(file_path, '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=fixed))
+    except:
+        return None, None
+    return get_slices_normalised(40, sub_img), label
 
 def get_all_data(sub_list):
-    return list(map(get_data, sub_list))
-
+    f_list =  list(map(get_data, sub_list))
+    data_list = [f[0] for f in f_list if f]
+    lab_list = [f[1] for f in f_list if f]
+    return data_list, lab_list
 
 def all_data():
     ff = open('rater_2_IDs.tsv').readlines()
