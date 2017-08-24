@@ -32,8 +32,8 @@ def get_all_data(sub_list):
     f_list =  list(pool.map(get_data, sub_list))
     data_list = [f[0] for f in f_list]
     lab_list = [f[1] for f in f_list]
-    data_list = [d for d in data_list if d]
-    lab_list = [l for l in lab_list if l]
+    data_list = [d for d in data_list if isinstance(d, numpy.ndarray)]
+    lab_list = [l for l in lab_list if isinstance(l, numpy.ndarray)]
     return data_list, lab_list
 
 def all_data():
