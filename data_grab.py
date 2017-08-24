@@ -27,7 +27,7 @@ def get_data(sub_id_lab):
         sub_img = resample_img(file_path, '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=fixed))
     except:
         return None, None
-    return get_slices_normalised(40, sub_img), label
+    return get_slices_normalised(80, sub_img), label
 
 def get_all_data(sub_list):
     pool = Pool()
