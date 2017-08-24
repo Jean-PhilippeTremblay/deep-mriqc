@@ -27,6 +27,15 @@ model_name = 'keras_cifar10_trained_model.h5'
 
 # The data, shuffled and split between train and test sets:
 
+#test_proportion of 3 means 1/3 so 33% test and 67% train
+def shuffle(matrix, target, test_proportion):
+    ratio = matrix.shape[0]/test_proportion
+    X_train = matrix[ratio:,:]
+    X_test =  matrix[:ratio,:]
+    Y_train = target[ratio:,:]
+    Y_test =  target[:ratio,:]
+    return X_train, X_test, Y_train, Y_test
+
 dat, lab = data_grab.all_data()
 dat_n = np.array(dat)
 data_s = dat_n.reshape(426*40, 256, 256)
@@ -36,7 +45,7 @@ randomize = np.arange(17040)
 np.random.shuffle(randomize)
 X = data_s[randomize]
 Y = labels_s[randomize]
-x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.33)
+x_train, x_test, y_train, y_test = shuffle(X, Y, 3)
 
 #(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 print('x_train shape:', x_train.shape)
