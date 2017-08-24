@@ -39,11 +39,11 @@ def shuffle(matrix, target, test_proportion):
 
 dat, lab = data_grab.all_data()
 dat_n = np.array(dat)
-data_s = dat_n.reshape(426*40, 256, 256)
+data_s = dat_n.reshape(426*80, 80, 80)
 lab_n = np.array(lab)
-labels_s = np.repeat(lab_n, 40)
+labels_s = np.repeat(lab_n, 80)
 labels_s = np.expand_dims(labels_s, axis=1)
-randomize = np.arange(17040)
+randomize = np.arange(426*80)
 np.random.shuffle(randomize)
 X = data_s[randomize]
 Y = labels_s[randomize]
@@ -51,8 +51,8 @@ X = X[:int(len(X)/2),]
 Y = Y[:int(len(Y)/2),]
 x_train, x_test, y_train, y_test = shuffle(X, Y, 3)
 
-x_train = x_train.reshape(x_train.shape[0], 256, 256, 1)
-x_test = x_test.reshape(x_test.shape[0], 256, 256, 1)
+x_train = x_train.reshape(x_train.shape[0], 80, 80, 1)
+x_test = x_test.reshape(x_test.shape[0], 80, 80, 1)
 
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
