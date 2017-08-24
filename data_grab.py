@@ -14,6 +14,7 @@ def resample_img(moving, fixed):
 
 
 def get_data(sub_id):
+    sub_id = sub_id.strip()
     base_dir = '/dbh_data/deep_abide'
     fixed = '50002'
     file_path = '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=sub_id)
