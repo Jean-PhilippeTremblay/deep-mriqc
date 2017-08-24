@@ -42,6 +42,7 @@ dat_n = np.array(dat)
 data_s = dat_n.reshape(426*40, 256, 256)
 lab_n = np.array(lab)
 labels_s = np.repeat(lab_n, 40)
+labels_s = np.expand_dims(labels_s, axis=1)
 randomize = np.arange(17040)
 np.random.shuffle(randomize)
 X = data_s[randomize]
