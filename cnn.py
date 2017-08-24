@@ -18,9 +18,9 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 batch_size = 32
-num_classes = 10
+num_classes = 2
 epochs = 200
-data_augmentation = True
+data_augmentation = False
 num_predictions = 20
 save_dir = os.path.join(os.getcwd(), 'saved_models')
 model_name = 'keras_cifar10_trained_model.h5'
@@ -49,6 +49,15 @@ X = data_s[randomize]
 Y = labels_s[randomize]
 x_train, x_test, y_train, y_test = shuffle(X, Y, 3)
 
+X_train = x_train.reshape(x_train.shape[0], 256, 256, 1)
+X_test = x_test.reshape(x_test.shape[0], 256, 256, 1)
+
+X_train = X_train.astype('float32')
+X_test = X_test.astype('float32')
+
+X_train/=255
+X_test/=255
+
 #(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
@@ -60,17 +69,17 @@ y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
 
-model.add(Conv2D(32, (3,), padding='same',
+model.add(Conv2D(32, (3, 3), padding='same',
                  input_shape=x_train.shape[1:]))
 model.add(Activation('relu'))
-model.add(Conv2D(32, (3,)))
+model.add(Conv2D(32, (3, 3)))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv2D(64, (3,), padding='same'))
+model.add(Conv2D(64, (3, 3), padding='same'))
 model.add(Activation('relu'))
-model.add(Conv2D(64, (3,)))
+model.add(Conv2D(64, (3, 3)))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
