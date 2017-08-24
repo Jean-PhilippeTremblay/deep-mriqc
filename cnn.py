@@ -15,6 +15,7 @@ import data_grab
 import os
 import pickle
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 batch_size = 32
 num_classes = 10
@@ -26,11 +27,18 @@ model_name = 'keras_cifar10_trained_model.h5'
 
 # The data, shuffled and split between train and test sets:
 
-data_set = data_grab.all_data()
+dat, lab = data_grab.all_data()
+dat_n = np.array(dat)
+data_s = dat_n.reshape(426*40, 256, 256)
+lab_n = np.array(lab)
+labels_s = np.repeat(lab_n, 40)
+randomize = np.arange(17040)
+np.random.shuffle(randomize)
+X = data_s[randomize]
+Y = labels_s[randomize]
+x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.33)
 
-
-
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+#(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
