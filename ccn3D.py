@@ -15,6 +15,7 @@ import data_grab
 import os
 import pickle
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
 batch_size = 16
@@ -56,9 +57,14 @@ dat_index = randomize
 dat_index = np.expand_dims(dat_index, axis=1)
 
 
+X_train_idx, X_test_idx, y_train, y_test = train_test_split(dat_index, lab_n, test_size=0.33, stratify=lab_n)
+
 indexes_train_subjects, indexes_test_subjects = gen_portion(dat_index, dat_index)
-x_train, x_test = gen_portion(dat_index, dat_n)
-y_train, y_test = gen_portion(dat_index, lab_n)
+#x_train, x_test = gen_portion(dat_index, dat_n)
+#y_train, y_test = gen_portion(dat_index, lab_n)
+
+x_train = dat_n[X_train_idx]
+x_test = dat_n[X_test_idx]
 
 train_n = indexes_train_subjects.shape[0]
 test_n = indexes_test_subjects.shape[0]
