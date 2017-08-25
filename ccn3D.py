@@ -18,7 +18,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 
-batch_size = 8
+batch_size = 6
 num_classes = 2
 epochs = 30
 data_augmentation = False
