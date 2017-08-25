@@ -65,7 +65,7 @@ test_n = indexes_test_subjects.shape[0]
 x_train = x_train_subjects.reshape(train_n*80, 80, 80)
 x_test = x_test_subjects.reshape(test_n*80, 80, 80)
 y_train = np.repeat(y_train_subjects, 80)
-y_test = np.repeat(y_train_subjects, 80)
+y_test = np.repeat(y_test_subjects, 80)
 
 x_train = x_train.reshape(x_train.shape[0], 80, 80, 1)
 x_test = x_test.reshape(x_test.shape[0], 80, 80, 1)
