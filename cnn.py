@@ -168,10 +168,9 @@ evaluation = model.evaluate(x_test, y_test, batch_size=batch_size)
 
 print('Model Accuracy on slices = %.2f' % (evaluation[1]))
 
-predictions_slices_indexes, predictions_slices = model.predict(x_test, batch_size=batch_size)
-
+predictions_slices = model.predict(x_test, batch_size=batch_size)
+predicted_labels = predictions_slices[:,1]
 actual_labels = y_test
-predicted_labels = predictions_slices[np.argsort(predictions_slices_indexes)]
 
 actual_labels_avged = np.mean(actual_labels.reshape(-1, 80), axis=1)
 predicted_labels_aved = np.sign(np.mean(predicted_labels.reshape(-1, 80), axis=1))
