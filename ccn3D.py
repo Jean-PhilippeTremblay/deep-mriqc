@@ -17,7 +17,7 @@ import pickle
 import numpy as np
 
 
-batch_size = 32
+batch_size = 16
 num_classes = 2
 epochs = 10
 data_augmentation = False
