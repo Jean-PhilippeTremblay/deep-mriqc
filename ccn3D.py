@@ -45,15 +45,15 @@ dat_index = np.expand_dims(dat_index, axis=1)
 
 X_train_idx, X_test_idx, y_train, y_test = train_test_split(dat_index, lab_n, test_size=0.33, stratify=lab_n)
 
-indexes_train_subjects, indexes_test_subjects = gen_portion(dat_index, dat_index)
+#indexes_train_subjects, indexes_test_subjects = gen_portion(dat_index, dat_index)
 #x_train, x_test = gen_portion(dat_index, dat_n)
 #y_train, y_test = gen_portion(dat_index, lab_n)
 
 x_train = dat_n[X_train_idx]
 x_test = dat_n[X_test_idx]
 
-train_n = indexes_train_subjects.shape[0]
-test_n = indexes_test_subjects.shape[0]
+#train_n = indexes_train_subjects.shape[0]
+#test_n = indexes_test_subjects.shape[0]
 
 x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
 x_test = x_test.reshape(x_test.shape[0], 80, 80, 80, 1)
@@ -79,17 +79,17 @@ y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
 
-model.add(Conv3D(16, (3, 3, 3), padding='same',
+model.add(Conv3D(16, (8, 8, 8), padding='same',
                  input_shape=x_train.shape[1:]))
 model.add(Activation('relu'))
-model.add(Conv3D(16, (3, 3, 3)))
+model.add(Conv3D(16, (8, 8, 8)))
 model.add(Activation('relu'))
 model.add(MaxPooling3D(pool_size=(2, 2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv3D(32, (3, 3, 3), padding='same'))
+model.add(Conv3D(32, (8, 8, 8), padding='same'))
 model.add(Activation('relu'))
-model.add(Conv3D(32, (3, 3, 3)))
+model.add(Conv3D(32, (8, 8, 8)))
 model.add(Activation('relu'))
 model.add(MaxPooling3D(pool_size=(2, 2, 2)))
 model.add(Dropout(0.25))
