@@ -79,17 +79,17 @@ y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
 
-model.add(Conv3D(16, (8, 8, 8), padding='same',
+model.add(Conv3D(16, (16, 16, 16), padding='same',
                  input_shape=x_train.shape[1:]))
 model.add(Activation('relu'))
-model.add(Conv3D(16, (8, 8, 8)))
+model.add(Conv3D(16, (16, 16, 16)))
 model.add(Activation('relu'))
 model.add(MaxPooling3D(pool_size=(2, 2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv3D(32, (8, 8, 8), padding='same'))
+model.add(Conv3D(32, (16, 16, 16), padding='same'))
 model.add(Activation('relu'))
-model.add(Conv3D(32, (8, 8, 8)))
+model.add(Conv3D(32, (16, 16, 16)))
 model.add(Activation('relu'))
 model.add(MaxPooling3D(pool_size=(2, 2, 2)))
 model.add(Dropout(0.25))
