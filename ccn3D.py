@@ -19,7 +19,7 @@ import numpy as np
 
 batch_size = 16
 num_classes = 2
-epochs = 10
+epochs = 30
 data_augmentation = False
 save_dir = os.path.join(os.getcwd(), 'saved_models')
 model_name = 'keras_deepmriqc_cnnv13D_trained_model.h5'
