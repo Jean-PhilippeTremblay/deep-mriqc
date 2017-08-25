@@ -15,41 +15,57 @@ import data_grab
 import os
 import pickle
 import numpy as np
-from sklearn.model_selection import train_test_split
 
 batch_size = 32
 num_classes = 2
-epochs = 200
+epochs = 10
 data_augmentation = False
-num_predictions = 20
 save_dir = os.path.join(os.getcwd(), 'saved_models')
-model_name = 'keras_cifar10_trained_model.h5'
+model_name = 'keras_deepmriqc_cnnv1_trained_model.h5'
 
 # The data, shuffled and split between train and test sets:
 
 #test_proportion of 3 means 1/3 so 33% test and 67% train
 def shuffle(matrix, target, test_proportion):
     ratio = int(matrix.shape[0]/test_proportion)
-    print(ratio)
     x_train = matrix[ratio:,:]
     x_test =  matrix[:ratio,:]
     y_train = target[ratio:,:]
     y_test =  target[:ratio,:]
     return x_train, x_test, y_train, y_test
 
+def gen_portion(indexes, data, portion=3):
+    ratio = int(indexes.shape[0] / portion)
+    train = data[ratio:,:]
+    test = data[:ratio,:]
+    return train, test
+
+##Grabbing
 dat, lab = data_grab.all_data()
 dat_n = np.array(dat)
-data_s = dat_n.reshape(426*80, 80, 80)
 lab_n = np.array(lab)
-labels_s = np.repeat(lab_n, 80)
-labels_s = np.expand_dims(labels_s, axis=1)
-randomize = np.arange(426*80)
+lab_n = np.expand_dims(lab_n, axis=1)
+
+## Shuffle at subject level - not slice level
+randomize = np.arange(len(dat))
 np.random.shuffle(randomize)
-X = data_s[randomize]
-Y = labels_s[randomize]
-X = X[:int(len(X)/2),]
-Y = Y[:int(len(Y)/2),]
-x_train, x_test, y_train, y_test = shuffle(X, Y, 3)
+dat_n = dat_n[randomize]
+lab_n = lab_n[randomize]
+
+dat_index = randomize
+dat_index = np.expand_dims(dat_index, axis=1)
+
+indexes_train_subjects, indexes_test_subjects = gen_portion(dat_index, dat_index)
+x_train_subjects, x_test_subjects = gen_portion(dat_index, dat_n)
+y_train_subjects, y_test_subjects = gen_portion(dat_index, lab_n)
+
+train_n = indexes_train_subjects.shape[0]
+test_n = indexes_test_subjects.shape[0]
+
+x_train = x_train_subjects.reshape(train_n*80, 80, 80)
+x_test = x_test_subjects.reshape(test_n*80, 80, 80)
+y_train = np.repeat(y_train_subjects, 80)
+y_test = np.repeat(y_train_subjects, 80)
 
 x_train = x_train.reshape(x_train.shape[0], 80, 80, 1)
 x_test = x_test.reshape(x_test.shape[0], 80, 80, 1)
@@ -146,34 +162,21 @@ model_path = os.path.join(save_dir, model_name)
 model.save(model_path)
 print('Saved trained model at %s ' % model_path)
 
-# Load label names to use in prediction results
-label_list_path = 'datasets/cifar-10-batches-py/batches.meta'
-
-
-keras_dir = os.path.expanduser(os.path.join('~', '.keras'))
-datadir_base = os.path.expanduser(keras_dir)
-if not os.access(datadir_base, os.W_OK):
-    datadir_base = os.path.join('/tmp', '.keras')
-label_list_path = os.path.join(datadir_base, label_list_path)
-
-with open(label_list_path, mode='rb') as f:
-    labels = pickle.load(f)
-
 # Evaluate model with test data set and share sample prediction results
-evaluation = model.evaluate_generator(datagen.flow(x_test, y_test,
-                                      batch_size=batch_size),
-                                      steps=x_test.shape[0] // batch_size)
+evaluation = model.evaluate(x_test, y_test, batch_size=batch_size)
 
-print('Model Accuracy = %.2f' % (evaluation[1]))
+print('Model Accuracy on slices = %.2f' % (evaluation[1]))
 
-predict_gen = model.predict_generator(datagen.flow(x_test, y_test,
-                                      batch_size=batch_size),
-                                      steps=x_test.shape[0] // batch_size)
+predictions_slices_indexes, predictions_slices = model.predict(x_test, batch_size=batch_size)
 
-for predict_index, predicted_y in enumerate(predict_gen):
-    actual_label = labels['label_names'][np.argmax(y_test[predict_index])]
-    predicted_label = labels['label_names'][np.argmax(predicted_y)]
-    print('Actual Label = %s vs. Predicted Label = %s' % (actual_label,
-                                                          predicted_label))
-    if predict_index == num_predictions:
-        break
+actual_labels = y_test
+predicted_labels = predictions_slices[np.argsort(predictions_slices_indexes)]
+
+actual_labels_avged = np.mean(actual_labels.reshape(-1, 80), axis=1)
+predicted_labels_aved = np.sign(np.mean(predicted_labels.reshape(-1, 80), axis=1))
+
+acc_count = np.sum((actual_labels_avged == predicted_labels_aved)*1)
+
+image_acc = acc_count/test_n*100
+
+print('Model Accuracy on images = %.2f' % (image_acc))
