@@ -25,15 +25,6 @@ data_augmentation = False
 save_dir = os.path.join(os.getcwd(), 'saved_models')
 model_name = 'keras_deepmriqc_cnnv13D_trained_model.h5'
 
-#test_proportion of 3 means 1/3 so 33% test and 67% train
-def shuffle(matrix, target, test_proportion):
-    ratio = int(matrix.shape[0]/test_proportion)
-    x_train = matrix[ratio:,:]
-    x_test =  matrix[:ratio,:]
-    y_train = target[ratio:,:]
-    y_test =  target[:ratio,:]
-    return x_train, x_test, y_train, y_test
-
 def gen_portion(indexes, data, portion=3):
     ratio = int(indexes.shape[0] / portion)
     train = data[ratio:,:]
@@ -48,12 +39,7 @@ lab_n = np.array(lab)
 lab_n = np.expand_dims(lab_n, axis=1)
 
 ## Shuffle at subject level - not slice level
-randomize = np.arange(len(dat))
-np.random.shuffle(randomize)
-dat_n = dat_n[randomize]
-lab_n = lab_n[randomize]
-
-dat_index = randomize
+dat_index = np.arange(len(dat))
 dat_index = np.expand_dims(dat_index, axis=1)
 
 
