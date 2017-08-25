@@ -10,29 +10,20 @@ import keras
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Conv3D, MaxPooling3D
 import data_grab
 import os
 import pickle
 import numpy as np
+from sklearn.model_selection import train_test_split
 
-batch_size = 32
+
+batch_size = 16
 num_classes = 2
-epochs = 10
+epochs = 30
 data_augmentation = False
 save_dir = os.path.join(os.getcwd(), 'saved_models')
-model_name = 'keras_deepmriqc_cnnv1_trained_model.h5'
-
-# The data, shuffled and split between train and test sets:
-
-#test_proportion of 3 means 1/3 so 33% test and 67% train
-def shuffle(matrix, target, test_proportion):
-    ratio = int(matrix.shape[0]/test_proportion)
-    x_train = matrix[ratio:,:]
-    x_test =  matrix[:ratio,:]
-    y_train = target[ratio:,:]
-    y_test =  target[:ratio,:]
-    return x_train, x_test, y_train, y_test
+model_name = 'keras_deepmriqc_cnnv13D_trained_model.h5'
 
 def gen_portion(indexes, data, portion=3):
     ratio = int(indexes.shape[0] / portion)
@@ -48,28 +39,24 @@ lab_n = np.array(lab)
 lab_n = np.expand_dims(lab_n, axis=1)
 
 ## Shuffle at subject level - not slice level
-randomize = np.arange(len(dat))
-np.random.shuffle(randomize)
-dat_n = dat_n[randomize]
-lab_n = lab_n[randomize]
-
-dat_index = randomize
+dat_index = np.arange(len(dat))
 dat_index = np.expand_dims(dat_index, axis=1)
 
+
+X_train_idx, X_test_idx, y_train, y_test = train_test_split(dat_index, lab_n, test_size=0.33, stratify=lab_n)
+
 indexes_train_subjects, indexes_test_subjects = gen_portion(dat_index, dat_index)
-x_train_subjects, x_test_subjects = gen_portion(dat_index, dat_n)
-y_train_subjects, y_test_subjects = gen_portion(dat_index, lab_n)
+#x_train, x_test = gen_portion(dat_index, dat_n)
+#y_train, y_test = gen_portion(dat_index, lab_n)
+
+x_train = dat_n[X_train_idx]
+x_test = dat_n[X_test_idx]
 
 train_n = indexes_train_subjects.shape[0]
 test_n = indexes_test_subjects.shape[0]
 
-x_train = x_train_subjects.reshape(train_n*80, 80, 80)
-x_test = x_test_subjects.reshape(test_n*80, 80, 80)
-y_train = np.repeat(y_train_subjects, 80)
-y_test = np.repeat(y_test_subjects, 80)
-
-x_train = x_train.reshape(x_train.shape[0], 80, 80, 1)
-x_test = x_test.reshape(x_test.shape[0], 80, 80, 1)
+x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
+x_test = x_test.reshape(x_test.shape[0], 80, 80, 80, 1)
 
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
@@ -77,7 +64,11 @@ x_test = x_test.astype('float32')
 x_train/=255
 x_test/=255
 
-#(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+
+
+
+
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
@@ -88,19 +79,19 @@ y_test = keras.utils.to_categorical(y_test, num_classes)
 
 model = Sequential()
 
-model.add(Conv2D(32, (3, 3), padding='same',
+model.add(Conv3D(16, (3, 3, 3), padding='same',
                  input_shape=x_train.shape[1:]))
 model.add(Activation('relu'))
-model.add(Conv2D(32, (3, 3)))
+model.add(Conv3D(16, (3, 3, 3)))
 model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(MaxPooling3D(pool_size=(2, 2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv2D(64, (3, 3), padding='same'))
+model.add(Conv3D(32, (3, 3, 3), padding='same'))
 model.add(Activation('relu'))
-model.add(Conv2D(64, (3, 3)))
+model.add(Conv3D(32, (3, 3, 3)))
 model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(MaxPooling3D(pool_size=(2, 2, 2)))
 model.add(Dropout(0.25))
 
 model.add(Flatten())
@@ -117,11 +108,6 @@ opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
 model.compile(loss='categorical_crossentropy',
               optimizer=opt,
               metrics=['accuracy'])
-
-x_train = x_train.astype('float32')
-x_test = x_test.astype('float32')
-x_train /= 255
-x_test /= 255
 
 if not data_augmentation:
     print('Not using data augmentation.')
@@ -168,15 +154,18 @@ evaluation = model.evaluate(x_test, y_test, batch_size=batch_size)
 
 print('Model Accuracy on slices = %.2f' % (evaluation[1]))
 
-predictions_slices = model.predict(x_test, batch_size=batch_size)
-predicted_labels = (predictions_slices[:,1]>0.5)*1
-actual_labels = y_test[:,1]
+# predictions_slices = model.predict(x_test, batch_size=batch_size)
+# predicted_labels = (predictions_slices[:,1]>0.5)*1
+# actual_labels = y_test[:,1]
+#
+# actual_labels_avged = np.mean(actual_labels.reshape(-1, 80), axis=1)
+# predicted_labels_aved = np.sign(np.mean(predicted_labels.reshape(-1, 80), axis=1))
+#
+# acc_count = np.sum((actual_labels_avged == predicted_labels_aved)*1)
+#
+# image_acc = acc_count/test_n*100
+#
+# print('Model Accuracy on images = %.2f' % (image_acc))
 
-actual_labels_avged = np.mean(actual_labels.reshape(-1, 80), axis=1)
-predicted_labels_aved = np.sign(np.mean(predicted_labels.reshape(-1, 80), axis=1))
 
-acc_count = np.sum((actual_labels_avged == predicted_labels_aved)*1)
 
-image_acc = acc_count/test_n*100
-
-print('Model Accuracy on images = %.2f' % (image_acc))
