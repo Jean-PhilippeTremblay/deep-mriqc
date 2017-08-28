@@ -1,4 +1,7 @@
-'''Train a simple deep CNN on the CIFAR10 small images dataset.
+'''A deep-learning approach to MRIQC. Using subjects from the publicly accessible ABIDE
+dataset and ratings from expert reviewer(s), we trained a 4-layer convolutional neural
+network (CNN) to classify raw MRI images as high- or low-quality.
+
 GPU run command with Theano backend (with TensorFlow, the GPU is automatically used):
     THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatx=float32 python cifar10_cnn.py
 It gets down to 0.65 test logloss in 25 epochs, and down to 0.55 after 50 epochs.
@@ -11,12 +14,15 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv3D, MaxPooling3D
-import data_grab
+
 import os
-import pickle
 import numpy as np
 from sklearn.model_selection import train_test_split
 
+import sys,inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(0,currentdir + '/gen_2Dslices')
+import data_grab
 
 batch_size = 16
 num_classes = 2
