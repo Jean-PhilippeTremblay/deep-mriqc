@@ -20,11 +20,6 @@ test = all_fnames[:round(ratio)]
 
 READ_INX = 0
 
-def get_label_from_id(id):
-    ##TODO
-    ### GET LABEL FOR ID IN HERE
-    return None
-
 
 def infinite_slice_generator_with_score(flist, batch_size):
     '''
@@ -32,7 +27,7 @@ def infinite_slice_generator_with_score(flist, batch_size):
     ### READ BATCHES FROM TRAIN LIST STARTING FROM READ_IDX
     ### MODIFY READ_IDX AFTERWARDS.
     '''
-    while True: 
+    while True:
         for f in flist:
             score = mapping.get(f)
             if score in [1,-1]:
