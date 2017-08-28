@@ -1,2 +1,7 @@
+# Ignore database and related files
 *.csv
 *.nii.gz
+
+# Ignore IDE's file
+*.idea
+*pycache*
