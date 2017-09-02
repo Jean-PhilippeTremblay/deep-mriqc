@@ -36,7 +36,7 @@ warnings.filterwarnings("ignore")
 # Set some hyperparameters
 batch_size = 16
 num_classes = 2
-epochs = 1
+epochs = 200
 data_augmentation = False
 save_dir = os.path.join(os.getcwd(), 'saved_models')
 model_name = 'keras_deepmriqc_cnnv13D_trained_model.h5'
