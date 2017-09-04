@@ -7,6 +7,11 @@ GPU run command with Theano backend (with TensorFlow, the GPU is automatically u
 '''
 
 from __future__ import print_function
+
+# for reproducibility
+import numpy as np
+np.random.seed(1234)
+
 import keras
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
@@ -20,7 +25,7 @@ import warnings
 import datetime
 import os
 import random as rnd
-import numpy as np
+
 from sklearn.model_selection import train_test_split
 
 import sys,inspect
