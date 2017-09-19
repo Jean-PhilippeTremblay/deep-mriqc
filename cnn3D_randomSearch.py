@@ -30,6 +30,7 @@ from sklearn.model_selection import train_test_split
 
 import sys,inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+data_dir='{0}/../data'.format(currentdir)
 sys.path.insert(0,currentdir + '/gen_2Dslices')
 import data_grab
 
@@ -76,7 +77,7 @@ def get_datasets():
         return train, test
 
     ##Grabbing
-    dat, lab = data_grab.all_data()
+    dat, lab = data_grab.all_data(currentdir, data_dir)
     lab = [0 if x==-1 else 1 for x in lab]
     dat_n = np.array(dat)
     lab_n = np.array(lab)
