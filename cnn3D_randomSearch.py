@@ -321,9 +321,9 @@ if __name__ == '__main__':
     }
 
     filters_dict = {
-        0: 8,
-        1: 16,
-        2: 32
+        0: 4,
+        1: 8,
+        2: 16
     }
 
     filterSize_dict = {
