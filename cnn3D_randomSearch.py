@@ -44,7 +44,7 @@ batch_size = 16
 num_classes = 2
 epochs = 200
 data_augmentation = False
-save_dir = os.path.join(os.getcwd(), 'saved_models')
+save_dir = os.path.join(currentdir, '/saved_models')
 model_name = 'keras_deepmriqc_cnnv13D_trained_model.h5'
 
 
@@ -54,11 +54,11 @@ def getUTC():
 
 # Save data in csv file
 def saveExperiment(fileName, data):
-    csvFile = open('Data/' + fileName + '.r.csv', 'a')
+    csvFile = open('{0}/Data/'.format(currentdir) + fileName + '.r.csv', 'a')
     writer = csv.writer(csvFile)
     # Check if file is empty, then write the header
 
-    if os.stat('Data/' + fileName + '.r.csv').st_size == 0:
+    if os.stat('{0}/Data/'.format(currentdir) + fileName + '.r.csv').st_size == 0:
         dataLabels = ['UTC_local', 'acc', 'val_acc', 'modelIndex', 'filters', 'filter_size', 'pool_size', 'dense_size', 'dropout', 'lr', 'decay']
         writer.writerow(dataLabels)
 
