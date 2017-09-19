@@ -114,7 +114,14 @@ def get_datasets():
 
 # Construct the model using hyperparameters defined as arguments
 def make_model(input_shape, modelIndex, filters, filter_size, pool_size, dense_size, dropout, lr, decay):
-
+    ## Getting all the params passed - debug step
+    print('######### DEBUG - MAKE_MODEL - params')
+    frame = inspect.currentframe()
+    args, _, _, values = inspect.getargvalues(frame)
+    print('function name "%s"' % inspect.getframeinfo(frame)[2])
+    for i in args:
+        print("    %s = %s" % (i, values[i]))
+    print('#########')
     model = Sequential()
 
     if modelIndex == 1:
@@ -321,9 +328,9 @@ if __name__ == '__main__':
     }
 
     filters_dict = {
-        0: 4,
-        1: 8,
-        2: 16
+        0: 8,
+        1: 16,
+        2: 32
     }
 
     filterSize_dict = {
