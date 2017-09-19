@@ -20,7 +20,7 @@ def get_data(sub_id_lab):
     sub_id_lab = sub_id_lab.strip()
     sub_id = sub_id_lab.split('\t')[0]
     label = sub_id_lab.split('\t')[1]
-    base_dir = '/dbh_data/deep_abide'
+    base_dir = '/home/sulantha/scratch/sulantha/deep-mriqc/data/deep_abide'
     fixed = '50002'
     file_path = '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=sub_id)
     try:

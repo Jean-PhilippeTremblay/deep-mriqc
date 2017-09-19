@@ -10,7 +10,7 @@ from __future__ import print_function
 
 # for reproducibility
 import numpy as np
-np.random.seed(1234)
+#np.random.seed(1234)
 
 import keras
 from keras.preprocessing.image import ImageDataGenerator
@@ -326,9 +326,8 @@ if __name__ == '__main__':
     }
 
     filterSize_dict = {
-        0: 8,
-        1: 16,
-        2: 32
+        0: 4,
+        1: 8
     }
 
     poolSize_dict = {
