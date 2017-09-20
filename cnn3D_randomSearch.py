@@ -320,11 +320,7 @@ if __name__ == '__main__':
     }
 
     modelIndex_dict = {
-        0: 1,
-        1: 2,
-        2: 3,
-        3: 4,
-        4: 5
+        0: 1
     }
 
     filters_dict = {
