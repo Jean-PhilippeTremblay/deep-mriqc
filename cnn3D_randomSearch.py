@@ -304,7 +304,7 @@ def optimization(model, x_train, y_train, data_augmentation):
                                         epochs=epochs,
                                         validation_split=0.1,
                                         callbacks=[early_stopping, reduce_lr])
-    return model, history
+    return history
 
 
 if __name__ == '__main__':
@@ -324,7 +324,11 @@ if __name__ == '__main__':
     }
 
     modelIndex_dict = {
-        0: 1
+        0: 1,
+        1: 2,
+        2: 3,
+        3: 4,
+        4: 5
     }
 
     filters_dict = {
@@ -397,7 +401,7 @@ if __name__ == '__main__':
                             decay=decay)
 
         # Start optimization
-        model, history = optimization(model, x_train, y_train, data_augmentation)
+        history = optimization(model, x_train, y_train, data_augmentation)
 
         data = [UTC_local, history.history['acc'], history.history['val_acc'], modelIndex, filters, filter_size, pool_size, dense_size, dropout, lr, decay]
 
