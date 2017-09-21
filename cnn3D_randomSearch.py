@@ -48,7 +48,6 @@ epochs = 200
 data_augmentation = False
 save_dir = os.path.join(currentdir, '/saved_models')
 model_name = 'keras_deepmriqc_cnnv13D_trained_model.h5'
-pool = multiprocessing.Pool(1)
 
 # Generate UNIX time stamp
 def getUTC():
@@ -395,7 +394,7 @@ UTC_global = getUTC()
 
 # Generate training and testing datasets
 x_train, y_train, x_test, y_test = get_datasets()
-
+pool = multiprocessing.Pool(1)
 ret_results = list(pool.map(functools.partial(do_run, x_train=x_train, y_train=y_train), [i for i in range(100)]))
 
 for ret_data in ret_results:
