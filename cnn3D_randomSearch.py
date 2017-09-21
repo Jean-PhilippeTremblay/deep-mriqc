@@ -30,8 +30,7 @@ import random as rnd
 
 from sklearn.model_selection import train_test_split
 
-import sys,inspect, functools
-from pathos.multiprocessing import ProcessingPool
+import sys,inspect, multiprocessing
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 data_dir='{0}/../data'.format(currentdir)
 sys.path.insert(0,currentdir + '/gen_2Dslices')
@@ -262,7 +261,7 @@ def make_model(input_shape, modelIndex, filters, filter_size, pool_size, dense_s
     return model
 
 
-def do_run(i, x_train, y_train):
+def do_run(i, x_train, y_train, res_dict):
         # generate UNIX time stamp
     UTC_local = getUTC()  # Randomly generate hyperparameters
 
@@ -363,16 +362,23 @@ def do_run(i, x_train, y_train):
 
     data = (UTC_local, acc, val_acc, modelIndex, filters, filter_size,
             pool_size, dense_size, dropout, lr, decay)
-    return data
+    res_dict[i] = data
 
 UTC_global = getUTC()
 
 # Generate training and testing datasets
 x_train, y_train, x_test, y_test = get_datasets()
-pool2 = ProcessingPool(1)
-ret_results = list(pool2.map(functools.partial(do_run, x_train=x_train, y_train=y_train), [i for i in range(100)]))
 
-for ret_data in ret_results:
+manager = multiprocessing.Manager()
+res_dict = manager.dict()
+jobs = []
+for i in range(100):
+    p = multiprocessing.Process(target=do_run, args=(i, x_train, y_train, res_dict))
+    jobs.append(p)
+    p.start()
+    p.join()
+
+for k, ret_data in res_dict.items():
     saveExperiment(UTC_global, ret_data)
 
 
