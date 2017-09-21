@@ -317,6 +317,10 @@ def do_run(i, x_train, y_train):
 
     modelIndex_dict = {
         0: 1,
+        1: 2,
+        2: 3,
+        3: 4,
+        4: 5
     }
 
     filters_dict = {
