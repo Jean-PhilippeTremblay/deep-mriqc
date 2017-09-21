@@ -12,15 +12,6 @@ from __future__ import print_function
 import numpy as np
 #np.random.seed(1234)
 
-import keras
-from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Conv3D, MaxPooling3D
-from keras.callbacks import EarlyStopping
-from keras.callbacks import ReduceLROnPlateau
-
-
 import csv
 import warnings
 import datetime
@@ -114,154 +105,160 @@ def get_datasets():
     return x_train, y_train, x_test,y_test
 
 # Construct the model using hyperparameters defined as arguments
-def make_model(input_shape, modelIndex, filters, filter_size, pool_size, dense_size, dropout, lr, decay):
-    ## Getting all the params passed - debug step
-    print('######### DEBUG - MAKE_MODEL - params')
-    frame = inspect.currentframe()
-    args, _, _, values = inspect.getargvalues(frame)
-    print('function name "%s"' % inspect.getframeinfo(frame)[2])
-    for i in args:
-        print("    %s = %s" % (i, values[i]))
-    print('#########')
-    model = Sequential()
-
-    if modelIndex == 1:
-
-        # 1x Conv+relu+MaxPool+Dropout -> 1x Dense+relu+Dropout
-        model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
-                         input_shape=input_shape))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Flatten())
-        model.add(Dense(dense_size))
-        model.add(Activation('relu'))
-        model.add(Dropout(dropout))
-
-        model.add(Dense(num_classes))
-        model.add(Activation('softmax'))
-
-    elif modelIndex == 2:
-        # 2x Conv+relu+MaxPool+Dropout -> 1x Dense+relu+Dropout
-        model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
-                    input_shape=input_shape))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Conv3D(pool_size*filters, (filter_size, filter_size, filter_size), padding='same'))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Flatten())
-        model.add(Dense(dense_size))
-        model.add(Activation('relu'))
-        model.add(Dropout(dropout))
-
-        model.add(Dense(num_classes))
-        model.add(Activation('softmax'))
-
-    elif modelIndex == 3:
-        # 2x Conv+relu+MaxPool+Dropout -> 2x Dense+relu+Dropout
-        model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
-                         input_shape=input_shape))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size), padding='same'))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Flatten())
-        model.add(Dense(dense_size))
-        model.add(Activation('relu'))
-        model.add(Dropout(dropout))
-
-        model.add(Dense(dense_size))
-        model.add(Activation('relu'))
-        model.add(Dropout(dropout))
-
-        model.add(Dense(num_classes))
-        model.add(Activation('softmax'))
-
-    elif modelIndex == 4:
-        # 2x Conv+relu+Conv+relu+MaxPool+Droput -> 1x Dense+relu+Dropout
-        model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
-                         input_shape=input_shape))
-        model.add(Activation('relu'))
-
-        model.add(Conv3D(filters, (filter_size, filter_size, filter_size)))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size), padding='same'))
-        model.add(Activation('relu'))
-
-        model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size)))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Flatten())
-        model.add(Dense(dense_size))
-        model.add(Activation('relu'))
-        model.add(Dropout(dropout))
-
-        model.add(Dense(num_classes))
-        model.add(Activation('softmax'))
-
-    elif modelIndex == 5:
-        model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
-                         input_shape=input_shape))
-        model.add(Activation('relu'))
-
-        model.add(Conv3D(filters, (filter_size, filter_size, filter_size)))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size), padding='same'))
-        model.add(Activation('relu'))
-
-        model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size)))
-        model.add(Activation('relu'))
-
-        model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
-        model.add(Dropout(dropout))
-
-        model.add(Flatten())
-        model.add(Dense(dense_size))
-        model.add(Activation('relu'))
-        model.add(Dropout(dropout))
-
-        model.add(Dense(num_classes))
-        model.add(Activation('softmax'))
-
-    # initiate RMSprop optimizer
-    opt = keras.optimizers.rmsprop(lr=lr, decay=decay)
-
-    # Let's train the model using RMSprop
-    model.compile(loss='categorical_crossentropy',
-                  optimizer=opt,
-                  metrics=['accuracy'])
-
-    return model
-
 
 def do_run(i, x_train, y_train, res_dict):
+    import keras
+    from keras.preprocessing.image import ImageDataGenerator
+    from keras.models import Sequential
+    from keras.layers import Dense, Dropout, Activation, Flatten
+    from keras.layers import Conv3D, MaxPooling3D
+    from keras.callbacks import EarlyStopping
+    from keras.callbacks import ReduceLROnPlateau
+    def make_model(input_shape, modelIndex, filters, filter_size, pool_size, dense_size, dropout, lr, decay):
+        ## Getting all the params passed - debug step
+        print('######### DEBUG - MAKE_MODEL - params')
+        frame = inspect.currentframe()
+        args, _, _, values = inspect.getargvalues(frame)
+        print('function name "%s"' % inspect.getframeinfo(frame)[2])
+        for i in args:
+            print("    %s = %s" % (i, values[i]))
+        print('#########')
+        model = Sequential()
+
+        if modelIndex == 1:
+
+            # 1x Conv+relu+MaxPool+Dropout -> 1x Dense+relu+Dropout
+            model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
+                             input_shape=input_shape))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Flatten())
+            model.add(Dense(dense_size))
+            model.add(Activation('relu'))
+            model.add(Dropout(dropout))
+
+            model.add(Dense(num_classes))
+            model.add(Activation('softmax'))
+
+        elif modelIndex == 2:
+            # 2x Conv+relu+MaxPool+Dropout -> 1x Dense+relu+Dropout
+            model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
+                             input_shape=input_shape))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size), padding='same'))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Flatten())
+            model.add(Dense(dense_size))
+            model.add(Activation('relu'))
+            model.add(Dropout(dropout))
+
+            model.add(Dense(num_classes))
+            model.add(Activation('softmax'))
+
+        elif modelIndex == 3:
+            # 2x Conv+relu+MaxPool+Dropout -> 2x Dense+relu+Dropout
+            model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
+                             input_shape=input_shape))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size), padding='same'))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Flatten())
+            model.add(Dense(dense_size))
+            model.add(Activation('relu'))
+            model.add(Dropout(dropout))
+
+            model.add(Dense(dense_size))
+            model.add(Activation('relu'))
+            model.add(Dropout(dropout))
+
+            model.add(Dense(num_classes))
+            model.add(Activation('softmax'))
+
+        elif modelIndex == 4:
+            # 2x Conv+relu+Conv+relu+MaxPool+Droput -> 1x Dense+relu+Dropout
+            model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
+                             input_shape=input_shape))
+            model.add(Activation('relu'))
+
+            model.add(Conv3D(filters, (filter_size, filter_size, filter_size)))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size), padding='same'))
+            model.add(Activation('relu'))
+
+            model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size)))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Flatten())
+            model.add(Dense(dense_size))
+            model.add(Activation('relu'))
+            model.add(Dropout(dropout))
+
+            model.add(Dense(num_classes))
+            model.add(Activation('softmax'))
+
+        elif modelIndex == 5:
+            model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
+                             input_shape=input_shape))
+            model.add(Activation('relu'))
+
+            model.add(Conv3D(filters, (filter_size, filter_size, filter_size)))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size), padding='same'))
+            model.add(Activation('relu'))
+
+            model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size)))
+            model.add(Activation('relu'))
+
+            model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
+            model.add(Dropout(dropout))
+
+            model.add(Flatten())
+            model.add(Dense(dense_size))
+            model.add(Activation('relu'))
+            model.add(Dropout(dropout))
+
+            model.add(Dense(num_classes))
+            model.add(Activation('softmax'))
+
+        # initiate RMSprop optimizer
+        opt = keras.optimizers.rmsprop(lr=lr, decay=decay)
+
+        # Let's train the model using RMSprop
+        model.compile(loss='categorical_crossentropy',
+                      optimizer=opt,
+                      metrics=['accuracy'])
+
+        return model
         # generate UNIX time stamp
     UTC_local = getUTC()  # Randomly generate hyperparameters
 
