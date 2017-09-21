@@ -29,7 +29,7 @@ import random as rnd
 
 from sklearn.model_selection import train_test_split
 
-import sys,inspect, multiprocessing
+import sys,inspect, multiprocessing, functools
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 data_dir='{0}/../data'.format(currentdir)
 sys.path.insert(0,currentdir + '/gen_2Dslices')
@@ -303,18 +303,11 @@ def optimization(model, x_train, y_train, data_augmentation):
                                         callbacks=[early_stopping, reduce_lr])
     return history
 
+def do_run(i, x_train, y_train):
+        # generate UNIX time stamp
+    UTC_local = getUTC()  # Randomly generate hyperparameters
 
-if __name__ == '__main__':
-
-    UTC_global = getUTC()
-
-    # Generate training and testing datasets
-    x_train, y_train, x_test, y_test = get_datasets()
-
-
-    # Randomly generate hyperparameters
-
-    optimizer_dict = { # this one is not used yet
+    optimizer_dict = {  # this one is not used yet
         0: 'adam',
         1: 'rmsprop',
         2: 'adadelta'
@@ -368,41 +361,43 @@ if __name__ == '__main__':
         3: 1e-07
     }
 
-    def do_run(i):
-        # generate UNIX time stamp
-        UTC_local = getUTC()
+    modelIndex = modelIndex_dict.get(rnd.randint(0, len(modelIndex_dict) - 1))
+    filters = filters_dict.get(rnd.randint(0, len(filters_dict) - 1))
+    filter_size = filterSize_dict.get(rnd.randint(0, len(filterSize_dict) - 1))
+    pool_size = poolSize_dict.get(rnd.randint(0, len(poolSize_dict) - 1))
+    dense_size = denseSize_dict.get(rnd.randint(0, len(denseSize_dict) - 1))
+    dropout = dropout_dict.get(rnd.randint(0, len(dropout_dict) - 1))
+    lr = lr_dict.get(rnd.randint(0, len(lr_dict) - 1))
+    decay = decay_dict.get(rnd.randint(0, len(decay_dict) - 1))
 
-        modelIndex = modelIndex_dict.get(rnd.randint(0, len(modelIndex_dict) - 1))
-        filters = filters_dict.get(rnd.randint(0, len(filters_dict) - 1))
-        filter_size = filterSize_dict.get(rnd.randint(0, len(filterSize_dict) - 1))
-        pool_size = poolSize_dict.get(rnd.randint(0, len(poolSize_dict) - 1))
-        dense_size = denseSize_dict.get(rnd.randint(0, len(denseSize_dict) - 1))
-        dropout = dropout_dict.get(rnd.randint(0, len(dropout_dict) - 1))
-        lr = lr_dict.get(rnd.randint(0, len(lr_dict) - 1))
-        decay = decay_dict.get(rnd.randint(0, len(decay_dict) - 1))
+    # Get the model
+    model = make_model(input_shape=x_train.shape[1:],
+                       modelIndex=modelIndex,
+                       filters=filters,
+                       filter_size=filter_size,
+                       pool_size=pool_size,
+                       dense_size=dense_size,
+                       dropout=dropout,
+                       lr=lr,
+                       decay=decay)
 
-        # Get the model
-        model = make_model(input_shape=x_train.shape[1:],
-                           modelIndex=modelIndex,
-                           filters=filters,
-                           filter_size=filter_size,
-                           pool_size=pool_size,
-                           dense_size=dense_size,
-                           dropout=dropout,
-                           lr=lr,
-                           decay=decay)
+    # Start optimization
+    history = optimization(model, x_train, y_train, data_augmentation)
 
-        # Start optimization
-        history = optimization(model, x_train, y_train, data_augmentation)
+    data = [UTC_local, history.history['acc'], history.history['val_acc'], modelIndex, filters, filter_size,
+            pool_size, dense_size, dropout, lr, decay]
+    return data
 
-        data = [UTC_local, history.history['acc'], history.history['val_acc'], modelIndex, filters, filter_size,
-                pool_size, dense_size, dropout, lr, decay]
-        return data
+if __name__ == '__main__':
 
-    ret_results = list(pool.map(do_run, [i for i in range(100)]))
+    UTC_global = getUTC()
+
+    # Generate training and testing datasets
+    x_train, y_train, x_test, y_test = get_datasets()
+
+    ret_results = list(pool.map(functools.partial(do_run, x_train=x_train, y_train=y_train), [i for i in range(100)]))
 
     for ret_data in ret_results:
-
         saveExperiment(UTC_global, ret_data)
 
 
