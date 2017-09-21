@@ -21,7 +21,7 @@ from keras.callbacks import EarlyStopping
 from keras.callbacks import ReduceLROnPlateau
 import tensorflow as tf
 config = tf.ConfigProto()
-config.gpu_options.allow_growth=True
+config.gpu_options.allocator_type = 'BFC'
 sess = tf.Session(config=config)
 
 import csv
