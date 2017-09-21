@@ -20,6 +20,10 @@ from keras.layers import Conv3D, MaxPooling3D
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ReduceLROnPlateau
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+sess = tf.Session(config=config)
+
 import csv
 import warnings
 import datetime
