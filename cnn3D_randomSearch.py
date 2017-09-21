@@ -19,7 +19,7 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv3D, MaxPooling3D
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ReduceLROnPlateau
-
+import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
 sess = tf.Session(config=config)
