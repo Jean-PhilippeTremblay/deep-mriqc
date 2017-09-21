@@ -384,31 +384,29 @@ def do_run(i, x_train, y_train):
     # Start optimization
     history = optimization(model, x_train, y_train, data_augmentation)
 
-    data = [UTC_local, history.history['acc'], history.history['val_acc'], modelIndex, filters, filter_size,
-            pool_size, dense_size, dropout, lr, decay]
+    data = (UTC_local, history.history['acc'], history.history['val_acc'], modelIndex, filters, filter_size,
+            pool_size, dense_size, dropout, lr, decay)
     return data
 
-if __name__ == '__main__':
+UTC_global = getUTC()
 
-    UTC_global = getUTC()
+# Generate training and testing datasets
+x_train, y_train, x_test, y_test = get_datasets()
 
-    # Generate training and testing datasets
-    x_train, y_train, x_test, y_test = get_datasets()
+ret_results = list(pool.map(functools.partial(do_run, x_train=x_train, y_train=y_train), [i for i in range(100)]))
 
-    ret_results = list(pool.map(functools.partial(do_run, x_train=x_train, y_train=y_train), [i for i in range(100)]))
-
-    for ret_data in ret_results:
-        saveExperiment(UTC_global, ret_data)
+for ret_data in ret_results:
+    saveExperiment(UTC_global, ret_data)
 
 
-    '''# Save model and weights
-    if not os.path.isdir(save_dir):
-        os.makedirs(save_dir)
-    model_path = os.path.join(save_dir, model_name)
-    model.save(model_path)
-    print('Saved trained model at %s ' % model_path)
+'''# Save model and weights
+if not os.path.isdir(save_dir):
+    os.makedirs(save_dir)
+model_path = os.path.join(save_dir, model_name)
+model.save(model_path)
+print('Saved trained model at %s ' % model_path)
 
-    # Evaluate model with test data set and share sample prediction results
-    evaluation = model.evaluate(x_test, y_test, batch_size=batch_size)
+# Evaluate model with test data set and share sample prediction results
+evaluation = model.evaluate(x_test, y_test, batch_size=batch_size)
 
-    print('Model Accuracy on slices = %.2f' % (evaluation[1]))'''
+print('Model Accuracy on slices = %.2f' % (evaluation[1]))'''
