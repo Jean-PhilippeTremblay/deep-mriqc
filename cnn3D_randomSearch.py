@@ -25,6 +25,7 @@ import csv
 import warnings
 import datetime
 import os
+import copy
 import random as rnd
 
 from sklearn.model_selection import train_test_split
@@ -301,7 +302,9 @@ def optimization(model, x_train, y_train, data_augmentation):
                                         epochs=epochs,
                                         validation_split=0.1,
                                         callbacks=[early_stopping, reduce_lr])
-    return history
+    acc = history.history['acc']
+    val_acc = history.history['val_acc']
+    return acc, val_acc
 
 def do_run(i, x_train, y_train):
         # generate UNIX time stamp
@@ -382,9 +385,9 @@ def do_run(i, x_train, y_train):
                        decay=decay)
 
     # Start optimization
-    history = optimization(model, x_train, y_train, data_augmentation)
+    acc, val_acc  = optimization(model, x_train, y_train, data_augmentation)
 
-    data = (UTC_local, history.history['acc'], history.history['val_acc'], modelIndex, filters, filter_size,
+    data = (UTC_local, acc, val_acc, modelIndex, filters, filter_size,
             pool_size, dense_size, dropout, lr, decay)
     return data
 
