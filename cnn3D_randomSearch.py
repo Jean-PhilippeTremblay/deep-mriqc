@@ -19,10 +19,7 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv3D, MaxPooling3D
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ReduceLROnPlateau
-import tensorflow as tf
-config = tf.ConfigProto()
-config.gpu_options.allocator_type = 'BFC'
-sess = tf.Session(config=config)
+
 
 import csv
 import warnings
@@ -32,7 +29,7 @@ import random as rnd
 
 from sklearn.model_selection import train_test_split
 
-import sys,inspect
+import sys,inspect, multiprocessing
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 data_dir='{0}/../data'.format(currentdir)
 sys.path.insert(0,currentdir + '/gen_2Dslices')
@@ -50,7 +47,7 @@ epochs = 200
 data_augmentation = False
 save_dir = os.path.join(currentdir, '/saved_models')
 model_name = 'keras_deepmriqc_cnnv13D_trained_model.h5'
-
+pool = multiprocessing.Pool(1)
 
 # Generate UNIX time stamp
 def getUTC():
@@ -371,11 +368,11 @@ if __name__ == '__main__':
         3: 1e-07
     }
 
-    for i in range(0,100):
+    def do_run(i):
         # generate UNIX time stamp
         UTC_local = getUTC()
 
-        modelIndex = modelIndex_dict.get(rnd.randint(0,len(modelIndex_dict)-1))
+        modelIndex = modelIndex_dict.get(rnd.randint(0, len(modelIndex_dict) - 1))
         filters = filters_dict.get(rnd.randint(0, len(filters_dict) - 1))
         filter_size = filterSize_dict.get(rnd.randint(0, len(filterSize_dict) - 1))
         pool_size = poolSize_dict.get(rnd.randint(0, len(poolSize_dict) - 1))
@@ -384,24 +381,29 @@ if __name__ == '__main__':
         lr = lr_dict.get(rnd.randint(0, len(lr_dict) - 1))
         decay = decay_dict.get(rnd.randint(0, len(decay_dict) - 1))
 
-
         # Get the model
         model = make_model(input_shape=x_train.shape[1:],
-                            modelIndex = modelIndex,
-                            filters = filters,
-                            filter_size = filter_size,
-                            pool_size=pool_size,
-                            dense_size=dense_size,
-                            dropout=dropout,
-                            lr=lr,
-                            decay=decay)
+                           modelIndex=modelIndex,
+                           filters=filters,
+                           filter_size=filter_size,
+                           pool_size=pool_size,
+                           dense_size=dense_size,
+                           dropout=dropout,
+                           lr=lr,
+                           decay=decay)
 
         # Start optimization
         history = optimization(model, x_train, y_train, data_augmentation)
 
-        data = [UTC_local, history.history['acc'], history.history['val_acc'], modelIndex, filters, filter_size, pool_size, dense_size, dropout, lr, decay]
+        data = [UTC_local, history.history['acc'], history.history['val_acc'], modelIndex, filters, filter_size,
+                pool_size, dense_size, dropout, lr, decay]
+        return data
 
-        saveExperiment(UTC_global, data)
+    ret_results = list(pool.map(do_run, [i for i in range(100)]))
+
+    for ret_data in ret_results:
+
+        saveExperiment(UTC_global, ret_data)
 
 
     '''# Save model and weights
