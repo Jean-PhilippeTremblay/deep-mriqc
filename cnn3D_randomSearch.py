@@ -357,8 +357,8 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
                         shuffle=True,
                         callbacks=[early_stopping, reduce_lr])
 
-    acc = np.mean(history.history['acc'])
-    val_acc = np.mean(history.history['val_acc'])
+    acc = np.array(history.history['acc'])[-1]
+    val_acc = np.array(history.history['val_acc'])[-1]
     print(acc)
     print(type(acc))
 
