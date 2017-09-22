@@ -368,7 +368,7 @@ UTC_global = getUTC()
 
 # Generate training and testing datasets
 x_train, y_train, x_test, y_test = get_datasets()
-pool = pathos.ProcessingPool(1)
+pool = pathos.multiprocessing.Pool(1)
 ret_results = list(pool.map(functools.partial(do_run, x_train=x_train, y_train=y_train), [i for i in range(100)]))
 
 for ret_data in ret_results:
