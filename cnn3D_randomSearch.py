@@ -173,6 +173,8 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
         2: 1e-06,
         3: 1e-07
     }
+    def print_var(var):
+        print('{0} - {1}'.format(var, eval(var)))
 
     modelIndex = modelIndex_dict.get(rnd.randint(0, len(modelIndex_dict) - 1))
     filters = filters_dict.get(rnd.randint(0, len(filters_dict) - 1))
@@ -191,6 +193,17 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
         if 'train' in g:
             continue
         print("    %s = %s" % (g, values[g]))
+
+    print_var('modelIndex')
+    print_var('filters')
+    print_var('filter_size')
+    print_var('pool_size')
+    print_var('dense_size')
+    print_var('dropout')
+    print_var('lr')
+    print_var('decay')
+
+
     print('#########')
     model = Sequential()
     input_shape = x_train.shape[1:]
