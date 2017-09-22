@@ -60,14 +60,8 @@ def saveExperiment(fileName, data):
     csvFile.close()
 
 # Generate training and testing data sets
-def get_datasets():
+def get_datasets(test=True):
     import keras
-    def gen_portion(indexes, data, portion=3):
-        ratio = int(indexes.shape[0] / portion)
-        train = data[ratio:, :]
-        test = data[:ratio, :]
-        return train, test
-
     ##Grabbing
     dat, lab = data_grab.all_data(currentdir, data_dir)
     lab = [0 if x==-1 else 1 for x in lab]
@@ -79,28 +73,38 @@ def get_datasets():
     dat_index = np.arange(len(dat))
     dat_index = np.expand_dims(dat_index, axis=1)
 
+    if test:
+        X_train_idx, X_test_idx, y_train, y_test = train_test_split(dat_index, lab_n, test_size=0.3, stratify=lab_n)
+        x_train = dat_n[X_train_idx]
+        x_test = dat_n[X_test_idx]
 
-    X_train_idx, X_test_idx, y_train, y_test = train_test_split(dat_index, lab_n, test_size=0.0, stratify=lab_n)
+        x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
+        x_test = x_test.reshape(x_test.shape[0], 80, 80, 80, 1)
 
-    x_train = dat_n[X_train_idx]
-    x_test = dat_n[X_test_idx]
+        x_train = x_train.astype('float32')
+        x_test = x_test.astype('float32')
 
-    x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
-    x_test = x_test.reshape(x_test.shape[0], 80, 80, 80, 1)
+        x_train /= 255
+        x_test /= 255
 
-    x_train = x_train.astype('float32')
-    x_test = x_test.astype('float32')
+        print('x_train shape:', x_train.shape)
+        print(x_train.shape[0], 'train samples')
+        print(x_test.shape[0], 'test samples')
 
-    x_train/=255
-    x_test/=255
+        # Convert class vectors to binary class matrices.
+        y_train = keras.utils.to_categorical(y_train, num_classes)
+        y_test = keras.utils.to_categorical(y_test, num_classes)
+    else:
+        x_train = dat_n
+        x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
+        x_train = x_train.astype('float32')
+        x_train /= 255
+        print('x_train shape:', x_train.shape)
+        print(x_train.shape[0], 'train samples')
+        y_train = keras.utils.to_categorical(lab_n, num_classes)
 
-    print('x_train shape:', x_train.shape)
-    print(x_train.shape[0], 'train samples')
-    print(x_test.shape[0], 'test samples')
-
-    # Convert class vectors to binary class matrices.
-    y_train = keras.utils.to_categorical(y_train, num_classes)
-    y_test = keras.utils.to_categorical(y_test, num_classes)
+        x_test=None
+        y_test=None
 
     return x_train, y_train, x_test,y_test
 
@@ -365,7 +369,7 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
 UTC_global = getUTC()
 
 # Generate training and testing datasets
-x_train, y_train, x_test, y_test = get_datasets()
+x_train, y_train, x_test, y_test = get_datasets(test=False)
 
 manager = multiprocessing.Manager()
 res_dict = manager.dict()
