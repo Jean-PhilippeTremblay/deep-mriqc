@@ -173,8 +173,6 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
         2: 1e-06,
         3: 1e-07
     }
-    def print_var(var):
-        print('{0} - {1}'.format(var, eval(var)))
 
     modelIndex = modelIndex_dict.get(rnd.randint(0, len(modelIndex_dict) - 1))
     filters = filters_dict.get(rnd.randint(0, len(filters_dict) - 1))
@@ -194,14 +192,14 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
             continue
         print("    %s = %s" % (g, values[g]))
 
-    print_var('modelIndex')
-    print_var('filters')
-    print_var('filter_size')
-    print_var('pool_size')
-    print_var('dense_size')
-    print_var('dropout')
-    print_var('lr')
-    print_var('decay')
+    print('modelIndex -' + str(modelIndex))
+    print('filters - ' + str(filters))
+    print('filter_size - ' + str(filter_size))
+    print('pool_size - ' + str(pool_size))
+    print('dense_size - ' + str(dense_size))
+    print('dropout - ' + str(dropout))
+    print('lr - ' + str(lr))
+    print('decay - ' + str(decay))
 
 
     print('#########')
