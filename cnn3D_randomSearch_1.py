@@ -348,6 +348,7 @@ def do_run(i, x_train, y_train):
     reduce_lr = ReduceLROnPlateau(factor=0.1, patience=3)
 
     print('Not using data augmentation.')
+    print('In loop - {0}'.format(i))
     history = model.fit(x_train, y_train,
                         batch_size=batch_size,
                         epochs=epochs,

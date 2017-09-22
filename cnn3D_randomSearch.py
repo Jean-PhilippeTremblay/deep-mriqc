@@ -61,7 +61,7 @@ def saveExperiment(fileName, data):
 
 # Generate training and testing data sets
 def get_datasets():
-
+    import keras
     def gen_portion(indexes, data, portion=3):
         ratio = int(indexes.shape[0] / portion)
         train = data[ratio:, :]
@@ -108,7 +108,6 @@ def get_datasets():
 
 def do_run(i, x_train, y_train, res_dict):
     import keras
-    from keras.preprocessing.image import ImageDataGenerator
     from keras.models import Sequential
     from keras.layers import Dense, Dropout, Activation, Flatten
     from keras.layers import Conv3D, MaxPooling3D
@@ -333,6 +332,7 @@ def do_run(i, x_train, y_train, res_dict):
     reduce_lr = ReduceLROnPlateau(factor=0.1, patience=3)
 
     print('Not using data augmentation.')
+    print('In loop - {0}'.format(i))
     history = model.fit(x_train, y_train,
                         batch_size=batch_size,
                         epochs=epochs,
