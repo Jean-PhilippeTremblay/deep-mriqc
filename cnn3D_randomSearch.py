@@ -359,8 +359,7 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
 
     acc = np.array(history.history['acc'])[-1]
     val_acc = np.array(history.history['val_acc'])[-1]
-    print(acc)
-    print(type(acc))
+    print('Accuracy - ' + str(acc))
 
     data = (UTC_local, acc, val_acc, modelIndex, filters, filter_size,
             pool_size, dense_size, dropout, lr, decay)
