@@ -106,7 +106,7 @@ def get_datasets():
 
 # Construct the model using hyperparameters defined as arguments
 
-def do_run(i, x_train, y_train, res_dict):
+def do_run(i, x_train=None, y_train=None, res_dict=None):
     import keras
     from keras.models import Sequential
     from keras.layers import Dense, Dropout, Activation, Flatten
@@ -358,7 +358,7 @@ manager = multiprocessing.Manager()
 res_dict = manager.dict()
 jobs = []
 for i in range(100):
-    p = multiprocessing.Process(target=do_run, args=(i, x_train, y_train, res_dict))
+    p = multiprocessing.Process(target=do_run, args=[i], kwargs=dict(x_train=x_train, y_train=y_train, res_dict=res_dict))
     jobs.append(p)
     p.start()
     p.join()
