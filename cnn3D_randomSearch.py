@@ -187,10 +187,10 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)
     print('function name "%s"' % inspect.getframeinfo(frame)[2])
-    for i in args:
-        if 'train' in i:
+    for g in args:
+        if 'train' in g:
             continue
-        print("    %s = %s" % (i, values[i]))
+        print("    %s = %s" % (g, values[g]))
     print('#########')
     model = Sequential()
     input_shape = x_train.shape[1:]
@@ -360,7 +360,8 @@ manager = multiprocessing.Manager()
 res_dict = manager.dict()
 jobs = []
 for i in range(100):
-    p = multiprocessing.Process(target=do_run, args=[i], kwargs=dict(x_train=x_train, y_train=y_train, res_dict=res_dict))
+    p = multiprocessing.Process(target=do_run, args=[i], kwargs=dict(x_train=x_train, y_train=y_train,
+                                                                     res_dict=res_dict))
     jobs.append(p)
     p.start()
     p.join()
