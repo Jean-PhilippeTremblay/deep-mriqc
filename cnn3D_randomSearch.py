@@ -342,8 +342,8 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
                         shuffle=True,
                         callbacks=[early_stopping, reduce_lr])
 
-    acc = copy.deepcopy(history.history['acc'])
-    val_acc = copy.deepcopy(history.history['val_acc'])
+    acc = np.mean(history.history['acc'])
+    val_acc = np.mean(history.history['val_acc'])
     print(acc)
     print(type(acc))
 
