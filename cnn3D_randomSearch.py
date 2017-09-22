@@ -188,6 +188,8 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
     args, _, _, values = inspect.getargvalues(frame)
     print('function name "%s"' % inspect.getframeinfo(frame)[2])
     for i in args:
+        if 'train' in i:
+            continue
         print("    %s = %s" % (i, values[i]))
     print('#########')
     model = Sequential()
