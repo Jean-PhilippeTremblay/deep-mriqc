@@ -80,7 +80,7 @@ def get_datasets():
     dat_index = np.expand_dims(dat_index, axis=1)
 
 
-    X_train_idx, X_test_idx, y_train, y_test = train_test_split(dat_index, lab_n, test_size=0.33, stratify=lab_n)
+    X_train_idx, X_test_idx, y_train, y_test = train_test_split(dat_index, lab_n, test_size=0.0, stratify=lab_n)
 
     x_train = dat_n[X_train_idx]
     x_test = dat_n[X_test_idx]
@@ -133,7 +133,7 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
     filters_dict = {
         0: 8,
         1: 16,
-        2: 32
+        2: 24
     }
 
     filterSize_dict = {
@@ -142,7 +142,7 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
     }
 
     poolSize_dict = {
-        0: 1,
+        0: 4,
         1: 2,
         2: 3
     }
@@ -349,7 +349,7 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
     history = model.fit(x_train, y_train,
                         batch_size=batch_size,
                         epochs=epochs,
-                        validation_split=0.1,
+                        validation_split=0.33,
                         shuffle=True,
                         callbacks=[early_stopping, reduce_lr])
 
