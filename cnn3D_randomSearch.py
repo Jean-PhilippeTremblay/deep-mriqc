@@ -12,15 +12,6 @@ from __future__ import print_function
 import numpy as np
 #np.random.seed(1234)
 
-import keras
-from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Conv3D, MaxPooling3D
-from keras.callbacks import EarlyStopping
-from keras.callbacks import ReduceLROnPlateau
-
-
 import csv
 import warnings
 import datetime
@@ -30,7 +21,7 @@ import random as rnd
 
 from sklearn.model_selection import train_test_split
 
-import sys,inspect, multiprocessing, functools
+import sys,inspect, multiprocessing
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 data_dir='{0}/../data'.format(currentdir)
 sys.path.insert(0,currentdir + '/gen_2Dslices')
@@ -114,8 +105,85 @@ def get_datasets():
     return x_train, y_train, x_test,y_test
 
 # Construct the model using hyperparameters defined as arguments
-def make_model(input_shape, modelIndex, filters, filter_size, pool_size, dense_size, dropout, lr, decay):
-    ## Getting all the params passed - debug step
+
+def do_run(i, x_train, y_train, res_dict):
+    import keras
+    from keras.preprocessing.image import ImageDataGenerator
+    from keras.models import Sequential
+    from keras.layers import Dense, Dropout, Activation, Flatten
+    from keras.layers import Conv3D, MaxPooling3D
+    from keras.callbacks import EarlyStopping
+    from keras.callbacks import ReduceLROnPlateau
+
+    UTC_local = getUTC()  # Randomly generate hyperparameters
+
+    optimizer_dict = {  # this one is not used yet
+        0: 'adam',
+        1: 'rmsprop',
+        2: 'adadelta'
+    }
+
+    modelIndex_dict = {
+        0: 1,
+        1: 2,
+        2: 3,
+        3: 4,
+        4: 5
+    }
+
+    filters_dict = {
+        0: 8,
+        1: 16,
+        2: 32
+    }
+
+    filterSize_dict = {
+        0: 4,
+        1: 8
+    }
+
+    poolSize_dict = {
+        0: 1,
+        1: 2,
+        2: 3
+    }
+
+    denseSize_dict = {
+        0: 256,
+        1: 512,
+        2: 1024
+    }
+
+    dropout_dict = {
+        0: 0,
+        1: 0.1,
+        2: 0.2,
+        3: 0.3,
+        4: 0.4
+    }
+
+    lr_dict = {
+        0: 0.1,
+        1: 0.01,
+        2: 0.001
+    }
+
+    decay_dict = {
+        0: 1e-04,
+        1: 1e-05,
+        2: 1e-06,
+        3: 1e-07
+    }
+
+    modelIndex = modelIndex_dict.get(rnd.randint(0, len(modelIndex_dict) - 1))
+    filters = filters_dict.get(rnd.randint(0, len(filters_dict) - 1))
+    filter_size = filterSize_dict.get(rnd.randint(0, len(filterSize_dict) - 1))
+    pool_size = poolSize_dict.get(rnd.randint(0, len(poolSize_dict) - 1))
+    dense_size = denseSize_dict.get(rnd.randint(0, len(denseSize_dict) - 1))
+    dropout = dropout_dict.get(rnd.randint(0, len(dropout_dict) - 1))
+    lr = lr_dict.get(rnd.randint(0, len(lr_dict) - 1))
+    decay = decay_dict.get(rnd.randint(0, len(decay_dict) - 1))
+
     print('######### DEBUG - MAKE_MODEL - params')
     frame = inspect.currentframe()
     args, _, _, values = inspect.getargvalues(frame)
@@ -124,6 +192,7 @@ def make_model(input_shape, modelIndex, filters, filter_size, pool_size, dense_s
         print("    %s = %s" % (i, values[i]))
     print('#########')
     model = Sequential()
+    input_shape = x_train.shape[1:]
 
     if modelIndex == 1:
 
@@ -146,13 +215,13 @@ def make_model(input_shape, modelIndex, filters, filter_size, pool_size, dense_s
     elif modelIndex == 2:
         # 2x Conv+relu+MaxPool+Dropout -> 1x Dense+relu+Dropout
         model.add(Conv3D(filters, (filter_size, filter_size, filter_size), padding='same',
-                    input_shape=input_shape))
+                         input_shape=input_shape))
         model.add(Activation('relu'))
 
         model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
         model.add(Dropout(dropout))
 
-        model.add(Conv3D(pool_size*filters, (filter_size, filter_size, filter_size), padding='same'))
+        model.add(Conv3D(pool_size * filters, (filter_size, filter_size, filter_size), padding='same'))
         model.add(Activation('relu'))
 
         model.add(MaxPooling3D(pool_size=(pool_size, pool_size, pool_size)))
@@ -258,91 +327,7 @@ def make_model(input_shape, modelIndex, filters, filter_size, pool_size, dense_s
                   optimizer=opt,
                   metrics=['accuracy'])
 
-    return model
-
-
-def do_run(i, x_train, y_train):
         # generate UNIX time stamp
-    UTC_local = getUTC()  # Randomly generate hyperparameters
-
-    optimizer_dict = {  # this one is not used yet
-        0: 'adam',
-        1: 'rmsprop',
-        2: 'adadelta'
-    }
-
-    modelIndex_dict = {
-        0: 1,
-        1: 2,
-        2: 3,
-        3: 4,
-        4: 5
-    }
-
-    filters_dict = {
-        0: 8,
-        1: 16,
-        2: 32
-    }
-
-    filterSize_dict = {
-        0: 4,
-        1: 8
-    }
-
-    poolSize_dict = {
-        0: 1,
-        1: 2,
-        2: 3
-    }
-
-    denseSize_dict = {
-        0: 256,
-        1: 512,
-        2: 1024
-    }
-
-    dropout_dict = {
-        0: 0,
-        1: 0.1,
-        2: 0.2,
-        3: 0.3,
-        4: 0.4
-    }
-
-    lr_dict = {
-        0: 0.1,
-        1: 0.01,
-        2: 0.001
-    }
-
-    decay_dict = {
-        0: 1e-04,
-        1: 1e-05,
-        2: 1e-06,
-        3: 1e-07
-    }
-
-    modelIndex = modelIndex_dict.get(rnd.randint(0, len(modelIndex_dict) - 1))
-    filters = filters_dict.get(rnd.randint(0, len(filters_dict) - 1))
-    filter_size = filterSize_dict.get(rnd.randint(0, len(filterSize_dict) - 1))
-    pool_size = poolSize_dict.get(rnd.randint(0, len(poolSize_dict) - 1))
-    dense_size = denseSize_dict.get(rnd.randint(0, len(denseSize_dict) - 1))
-    dropout = dropout_dict.get(rnd.randint(0, len(dropout_dict) - 1))
-    lr = lr_dict.get(rnd.randint(0, len(lr_dict) - 1))
-    decay = decay_dict.get(rnd.randint(0, len(decay_dict) - 1))
-
-    # Get the model
-    model = make_model(input_shape=x_train.shape[1:],
-                       modelIndex=modelIndex,
-                       filters=filters,
-                       filter_size=filter_size,
-                       pool_size=pool_size,
-                       dense_size=dense_size,
-                       dropout=dropout,
-                       lr=lr,
-                       decay=decay)
-
 
     early_stopping = EarlyStopping(patience=5)
     reduce_lr = ReduceLROnPlateau(factor=0.1, patience=3)
@@ -362,16 +347,23 @@ def do_run(i, x_train, y_train):
 
     data = (UTC_local, acc, val_acc, modelIndex, filters, filter_size,
             pool_size, dense_size, dropout, lr, decay)
-    return data
+    res_dict[i] = data
 
 UTC_global = getUTC()
 
 # Generate training and testing datasets
 x_train, y_train, x_test, y_test = get_datasets()
-pool = multiprocessing.Pool(1)
-ret_results = list(pool.map(functools.partial(do_run, x_train=x_train, y_train=y_train), [i for i in range(100)]))
 
-for ret_data in ret_results:
+manager = multiprocessing.Manager()
+res_dict = manager.dict()
+jobs = []
+for i in range(100):
+    p = multiprocessing.Process(target=do_run, args=(i, x_train, y_train, res_dict))
+    jobs.append(p)
+    p.start()
+    p.join()
+
+for k, ret_data in res_dict.items():
     saveExperiment(UTC_global, ret_data)
 
 
