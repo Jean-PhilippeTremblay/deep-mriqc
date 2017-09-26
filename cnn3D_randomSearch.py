@@ -105,9 +105,9 @@ def get_datasets(test=True):
 
         x_test=None
         y_test=None
-        
+
         # Convert class vectors to binary class matrices.
-        y_train = keras.utils.to_categorical(y_train, num_classes)
+        #y_train = keras.utils.to_categorical(y_train, num_classes)
 
     return x_train, y_train, x_test,y_test
 
@@ -340,7 +340,7 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
                   optimizer=opt,
                   metrics=['accuracy'])
 
-        
+
     early_stopping = EarlyStopping(monitor='val_loss', patience=5)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3)
 
