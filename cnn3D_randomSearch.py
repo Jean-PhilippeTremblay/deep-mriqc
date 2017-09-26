@@ -51,7 +51,7 @@ def saveExperiment(fileName, data):
     # Check if file is empty, then write the header
 
     if os.stat('{0}/Data/'.format(currentdir) + fileName + '.r.csv').st_size == 0:
-        dataLabels = ['UTC_local', 'acc', 'val_acc', 'modelIndex', 'filters', 'filter_size', 'pool_size', 'dense_size', 'dropout', 'lr', 'decay']
+        dataLabels = ['UTC_local', 'Max val_acc', 'modelIndex', 'filters', 'filter_size', 'pool_size', 'dense_size', 'dropout', 'lr', 'decay']
         writer.writerow(dataLabels)
 
 
@@ -105,6 +105,9 @@ def get_datasets(test=True):
 
         x_test=None
         y_test=None
+        
+        # Convert class vectors to binary class matrices.
+        y_train = keras.utils.to_categorical(y_train, num_classes)
 
     return x_train, y_train, x_test,y_test
 
@@ -166,9 +169,9 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
     }
 
     lr_dict = {
-        0: 0.1,
-        1: 0.01,
-        2: 0.001
+        0: 0.001,
+        1: 0.0001,
+        2: 0.00001
     }
 
     decay_dict = {
@@ -336,35 +339,35 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
         model.add(Activation('softmax'))
 
     # initiate RMSprop optimizer
-    opt = keras.optimizers.rmsprop(lr=lr, decay=decay)
+    opt = keras.optimizers.Adam(lr=lr, decay=decay)
 
     # Let's train the model using RMSprop
     model.compile(loss='categorical_crossentropy',
                   optimizer=opt,
                   metrics=['accuracy'])
 
-        # generate UNIX time stamp
-
-    early_stopping = EarlyStopping(patience=5)
-    reduce_lr = ReduceLROnPlateau(factor=0.1, patience=3)
+        
+    early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3)
 
     print('Not using data augmentation.')
     print('In loop - {0}'.format(i))
     history = model.fit(x_train, y_train,
                         batch_size=batch_size,
                         epochs=epochs,
-                        validation_split=0.33,
+                        validation_split=0.25,
                         shuffle=True,
                         callbacks=[early_stopping, reduce_lr])
 
-    acc = np.array(history.history['acc'])[-1]
-    val_acc = np.array(history.history['val_acc'])[-1]
-    print('Accuracy - ' + str(acc))
+    val_acc = max(np.array(history.history['val_acc']))
+    print('Max Validation Accuracy - ' + str(acc))
 
-    data = (UTC_local, acc, val_acc, modelIndex, filters, filter_size,
+    data = (UTC_local, val_acc, modelIndex, filters, filter_size,
             pool_size, dense_size, dropout, lr, decay)
     res_dict[i] = data
 
+
+# generate UNIX time stamp
 UTC_global = getUTC()
 
 # Generate training and testing datasets
