@@ -123,12 +123,6 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
 
     UTC_local = getUTC()  # Randomly generate hyperparameters
 
-    optimizer_dict = {  # this one is not used yet
-        0: 'adam',
-        1: 'rmsprop',
-        2: 'adadelta'
-    }
-
     modelIndex_dict = {
         0: 1,
         1: 2,
