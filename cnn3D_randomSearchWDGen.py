@@ -115,7 +115,7 @@ def get_datasets(test=True):
 
 # Construct the model using hyperparameters defined as arguments
 
-def do_run(i, x_train=None, y_train=None, res_dict=None, datagen=None):
+def do_run(i, x_train=None, y_train=None, res_dict=None, datagen_settings=None):
     import keras
     from keras.models import Sequential
     from keras.layers import Dense, Dropout, Activation, Flatten
@@ -342,18 +342,20 @@ def do_run(i, x_train=None, y_train=None, res_dict=None, datagen=None):
                   optimizer=opt,
                   metrics=['accuracy'])
 
+    if datagen_settings:
+        datagen2 = ImageGenerator(**datagen_settings)
+    else:
+        datagen2 = None
 
     early_stopping = EarlyStopping(monitor='val_loss', patience=5)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3)
 
     print('Not using data augmentation.')
     print('In loop - {0}'.format(i))
-    if datagen:
-        history = model.fit(datagen.flow(x_train, y_train),
+    if datagen2:
+        history = model.fit_generator(datagen2.flow(x_train, y_train),
                             batch_size=batch_size,
                             epochs=epochs,
-                            validation_split=0.25,
-                            shuffle=True,
                             callbacks=[early_stopping, reduce_lr])
     else:
         history = model.fit(x_train, y_train,
@@ -377,19 +379,18 @@ UTC_global = getUTC()
 # Generate training and testing datasets
 x_train, y_train, x_test, y_test = get_datasets(test=False)
 
-datagen = ImageGenerator(crop_size=(150,150,150), resample_size=(80,80,80),
+datagen_settings = dict(crop_size=(150,150,150), resample_size=(80,80,80),
                          normalize_by='max',
                          x_rotation_max_angel_deg=20,
                          y_rotation_max_angel_deg=20,
                          z_rotation_max_angel_deg=20)
-
 
 manager = multiprocessing.Manager()
 res_dict = manager.dict()
 jobs = []
 for i in range(100):
     p = multiprocessing.Process(target=do_run, args=[i], kwargs=dict(x_train=x_train, y_train=y_train,
-                                                                     res_dict=res_dict, datagen=datagen))
+                                                                     res_dict=res_dict, datagen_settings=datagen_settings))
     jobs.append(p)
     p.start()
     p.join()

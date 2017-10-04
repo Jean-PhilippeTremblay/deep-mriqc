@@ -136,7 +136,7 @@ class ImageGenerator(object):
         self.y_rotation_max_angel_deg = y_rotation_max_angel_deg
         self.z_rotation_max_angel_deg = z_rotation_max_angel_deg
 
-    def flow(self, x, y=None, batch_size=32, shuffle=True, seed=None):
+    def flow(self, x, y, batch_size=32, shuffle=True, seed=None):
         return NumpyArrayIterator(
             x, y, self,
             batch_size=batch_size,
