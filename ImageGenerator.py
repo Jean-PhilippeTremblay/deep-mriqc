@@ -3,7 +3,7 @@ import numpy as np
 import os
 import threading
 import warnings
-import skimage
+import skimage.transform as transform
 import math
 import random
 
@@ -170,7 +170,7 @@ class ImageGenerator(object):
 
     def do_resample(self, x):
         if self.resample:
-            return skimage.transform.resize(x, self.resample_size, preserve_range=True, mode='constant')
+            return transform.resize(x, self.resample_size, preserve_range=True, mode='constant')
         else:
             return x
 
