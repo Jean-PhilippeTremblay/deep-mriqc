@@ -354,7 +354,7 @@ def do_run(i, x_train=None, y_train=None, res_dict=None):
                         callbacks=[early_stopping, reduce_lr])
 
     val_acc = max(np.array(history.history['val_acc']))
-    print('Max Validation Accuracy - ' + str(acc))
+    print('Max Validation Accuracy - ' + str(val_acc))
 
     data = (UTC_local, val_acc, modelIndex, filters, filter_size,
             pool_size, dense_size, dropout, lr, decay)
