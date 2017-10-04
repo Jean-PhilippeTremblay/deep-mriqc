@@ -354,7 +354,6 @@ def do_run(i, x_train=None, y_train=None, res_dict=None, datagen_settings=None):
     print('In loop - {0}'.format(i))
     if datagen2:
         history = model.fit_generator(datagen2.flow(x_train, y_train),
-                            batch_size=batch_size,
                             epochs=epochs,
                             callbacks=[early_stopping, reduce_lr])
     else:
