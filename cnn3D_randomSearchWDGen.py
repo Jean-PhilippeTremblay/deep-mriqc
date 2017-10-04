@@ -350,14 +350,15 @@ def do_run(i, x_train=None, y_train=None, res_dict=None, datagen_settings=None):
     early_stopping = EarlyStopping(monitor='val_loss', patience=5)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3)
 
-    print('Not using data augmentation.')
     print('In loop - {0}'.format(i))
     if datagen2:
+        print('Using data augmentation.')
         history = model.fit_generator(datagen2.flow(x_train, y_train),
                                       steps_per_epoch=len(x_train) / 32,
                                 epochs=epochs,
                             callbacks=[early_stopping, reduce_lr])
     else:
+        print('Not using data augmentation.')
         history = model.fit(x_train, y_train,
                             batch_size=batch_size,
                             epochs=epochs,

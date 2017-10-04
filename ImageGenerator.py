@@ -109,9 +109,9 @@ class NumpyArrayIterator(Iterator):
         batch_x = np.zeros(tuple([current_batch_size] + list(self.x.shape)[1:]))
         for i, j in enumerate(index_array):
             x = self.x[j]
-            x = self.image_data_generator.crop(x)
-            x = self.image_data_generator.resample(x)
-            x = self.image_data_generator.random_transform(x)
+            x = self.image_data_generator.do_crop(x)
+            x = self.image_data_generator.do_resample(x)
+            x = self.image_data_generator.do_random_transform(x)
             batch_x[i] = x
         if self.y is None:
             return batch_x
@@ -144,7 +144,7 @@ class ImageGenerator(object):
             seed=seed,
             )
 
-    def crop(self, x):
+    def do_crop(self, x):
         if self.crop:
             mid_slice_x = round(x.shape[0] / 2)
             start_slice_x = mid_slice_x - round(self.crop_size[0] / 2)
@@ -168,13 +168,13 @@ class ImageGenerator(object):
         else:
             return x
 
-    def resample(self, x):
+    def do_resample(self, x):
         if self.resample:
             return skimage.transform.resize(x, self.resample_size, preserve_range=True, mode='constant')
         else:
             return x
 
-    def random_transform(self, x):
+    def do_random_transform(self, x):
         x_rot_mat = np.eye(3,3)
         if self.x_rotation_max_angel_deg > 0:
             rot_deg = random.randint(-1*self.x_rotation_max_angel_deg,self.x_rotation_max_angel_deg)
