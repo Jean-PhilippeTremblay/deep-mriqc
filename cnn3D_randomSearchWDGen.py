@@ -113,8 +113,46 @@ def get_datasets(test=True):
 
     return x_train, y_train, x_test,y_test
 
-# Construct the model using hyperparameters defined as arguments
+def get_all_data_no_split():
+    import keras
+    ##Grabbing
+    dat, lab = data_grab.all_data(currentdir, data_dir)
+    lab = [0 if x == -1 else 1 for x in lab]
+    dat_n = np.array(dat)
+    lab_n = np.array(lab)
+    lab_n = np.expand_dims(lab_n, axis=1)
 
+    return dat_n, lab_n
+
+def split_train_test(all_x, all_y):
+    import keras
+    dat_index = np.arange(all_x.shape[0])
+    dat_index = np.expand_dims(dat_index, axis=1)
+
+    X_train_idx, X_test_idx, y_train, y_test = train_test_split(dat_index, all_y, test_size=0.3, stratify=all_y)
+    x_train = all_x[X_train_idx]
+    x_test = all_x[X_test_idx]
+
+    x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
+    x_test = x_test.reshape(x_test.shape[0], 80, 80, 80, 1)
+
+    x_train = x_train.astype('float32')
+    x_test = x_test.astype('float32')
+
+    x_train /= 255
+    x_test /= 255
+
+    print('x_train shape:', x_train.shape)
+    print(x_train.shape[0], 'train samples')
+    print(x_test.shape[0], 'test samples')
+
+    # Convert class vectors to binary class matrices.
+    y_train = keras.utils.to_categorical(y_train, num_classes)
+    y_test = keras.utils.to_categorical(y_test, num_classes)
+
+    return x_train, y_train, x_test, y_test
+
+# Construct the model using hyperparameters defined as arguments
 def do_run(i, x_train=None, y_train=None, res_dict=None, datagen_settings=None):
     import keras
     from keras.models import Sequential
@@ -124,6 +162,9 @@ def do_run(i, x_train=None, y_train=None, res_dict=None, datagen_settings=None):
     from keras.callbacks import ReduceLROnPlateau
 
     UTC_local = getUTC()  # Randomly generate hyperparameters
+
+    x_train, y_train, x_test, y_test = split_train_test(x_train, y_train)
+
 
     modelIndex_dict = {
         0: 1,
@@ -343,18 +384,22 @@ def do_run(i, x_train=None, y_train=None, res_dict=None, datagen_settings=None):
                   metrics=['accuracy'])
 
     if datagen_settings:
-        datagen2 = ImageGenerator(**datagen_settings)
+        datagen_train = ImageGenerator(**datagen_settings)
+        datagen_test = ImageGenerator(**datagen_settings)
     else:
-        datagen2 = None
+        datagen_train = None
+        datagen_test = None
 
     early_stopping = EarlyStopping(monitor='val_loss', patience=5)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3)
 
     print('In loop - {0}'.format(i))
-    if datagen2:
+    if datagen_train:
         print('Using data augmentation.')
-        history = model.fit_generator(datagen2.flow(x_train, y_train),
+        history = model.fit_generator(datagen_train.flow(x_train, y_train),
                                       steps_per_epoch=len(x_train) / 32,
+                                      validation_data=datagen_test,
+                                      validation_steps=len(x_test)/32,
                                 epochs=epochs,
                             callbacks=[early_stopping, reduce_lr])
     else:
@@ -379,10 +424,9 @@ UTC_global = getUTC()
 
 # Generate training and testing datasets
 x_train, y_train, x_test, y_test = get_datasets(test=False)
+all_x, all_y = get_all_data_no_split()
 
-datagen_settings = dict(crop_size=(90,90,90), resample_size=(80,80,80),
-                         normalize_by='max',
-                         x_rotation_max_angel_deg=20,
+datagen_settings = dict(x_rotation_max_angel_deg=20,
                          y_rotation_max_angel_deg=20,
                          z_rotation_max_angel_deg=20)
 
@@ -390,7 +434,7 @@ manager = multiprocessing.Manager()
 res_dict = manager.dict()
 jobs = []
 for i in range(100):
-    p = multiprocessing.Process(target=do_run, args=[i], kwargs=dict(x_train=x_train, y_train=y_train,
+    p = multiprocessing.Process(target=do_run, args=[i], kwargs=dict(x_train=all_x, y_train=all_y,
                                                                      res_dict=res_dict, datagen_settings=datagen_settings))
     jobs.append(p)
     p.start()
