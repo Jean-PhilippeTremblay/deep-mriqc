@@ -82,6 +82,7 @@ class NumpyArrayIterator(Iterator):
                              (np.asarray(x).shape, np.asarray(y).shape))
 
         self.x = np.asarray(x)
+        print('SELF_X_SIZE - {0}'.format(self.x.shape))
 
         if self.x.ndim != 5:
             raise ValueError('Input data in `NumpyArrayIterator` '
@@ -109,6 +110,7 @@ class NumpyArrayIterator(Iterator):
         batch_x = np.zeros(tuple([current_batch_size] + list(self.x.shape)[1:]))
         for i, j in enumerate(index_array):
             x = self.x[j]
+            print('PASSED_TO_DG_SHAPE - {0}'.format(x))
             x = self.image_data_generator.do_crop(x)
             x = self.image_data_generator.do_resample(x)
             x = self.image_data_generator.do_random_transform(x)
