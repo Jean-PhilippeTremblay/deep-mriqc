@@ -98,7 +98,7 @@ def get_datasets(test=True):
         y_test = keras.utils.to_categorical(y_test, num_classes)
     else:
         x_train = dat_n
-        x_train = x_train.reshape(x_train.shape[0], 150, 150, 150, 1)
+        x_train = x_train.reshape(x_train.shape[0], 100, 100, 100, 1)
         x_train = x_train.astype('float32')
         x_train /= 255
         print('x_train shape:', x_train.shape)
