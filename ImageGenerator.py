@@ -82,7 +82,6 @@ class NumpyArrayIterator(Iterator):
                              (np.asarray(x).shape, np.asarray(y).shape))
 
         self.x = np.asarray(x)
-        print('SELF_X_SIZE - {0}'.format(self.x.shape))
 
         if self.x.ndim != 5:
             raise ValueError('Input data in `NumpyArrayIterator` '
@@ -108,7 +107,6 @@ class NumpyArrayIterator(Iterator):
         # The transformation of images is not under thread lock
         # so it can be done in parallel
         batch_x = np.zeros(tuple([current_batch_size] + list(self.x.shape)[1:]))
-        print('Index Array - {0}'.format(index_array))
         for i, j in enumerate(index_array):
             x = self.x[j]
             #x = self.image_data_generator.do_crop(x)
