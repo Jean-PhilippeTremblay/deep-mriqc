@@ -173,12 +173,14 @@ class ImageGenerator(object):
 
     def do_resample(self, x):
         if self.resample:
-            print(x.shape)
-            return transform.resize(x, self.resample_size, preserve_range=True, mode='constant')
+            x = x[:,:,:,0]
+            x = transform.resize(x, self.resample_size, preserve_range=True, mode='constant')
+            return np.expand_dims(x, axis=3).shape
         else:
             return x
 
     def do_random_transform(self, x):
+        x = x[:, :, :, 0]
         x_rot_mat = np.eye(3,3)
         if self.x_rotation_max_angel_deg > 0:
             rot_deg = random.randint(-1*self.x_rotation_max_angel_deg,self.x_rotation_max_angel_deg)
@@ -204,4 +206,5 @@ class ImageGenerator(object):
             z_rot_mat[1, 0] = math.sin(math.radians(rot_deg))
 
         full_rot_mat = np.dot(np.dot(x_rot_mat, y_rot_mat), z_rot_mat)
-        return ndimage.affine_transform(x, full_rot_mat)
+        x = ndimage.affine_transform(x, full_rot_mat)
+        return np.expand_dims(x, axis=3).shape
