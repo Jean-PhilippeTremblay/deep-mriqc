@@ -170,6 +170,7 @@ class ImageGenerator(object):
 
     def do_resample(self, x):
         if self.resample:
+            print(x.shape)
             return transform.resize(x, self.resample_size, preserve_range=True, mode='constant')
         else:
             return x
