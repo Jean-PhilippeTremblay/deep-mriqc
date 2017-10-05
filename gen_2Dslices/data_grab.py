@@ -27,7 +27,7 @@ def get_data(sub_id_lab, data_dir):
         sub_img = resample_img(file_path, '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=fixed))
     except:
         return None, None
-    return get_slices_normalised(150, sub_img), label
+    return get_slices_normalised(100, sub_img), label
 
 def get_data_no_crop(sub_id_lab, data_dir):
     sub_id_lab = sub_id_lab.strip()

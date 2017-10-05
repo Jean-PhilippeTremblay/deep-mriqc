@@ -380,7 +380,7 @@ UTC_global = getUTC()
 # Generate training and testing datasets
 x_train, y_train, x_test, y_test = get_datasets(test=False)
 
-datagen_settings = dict(crop_size=(120,120,120), resample_size=(80,80,80),
+datagen_settings = dict(crop_size=(90,90,90), resample_size=(80,80,80),
                          normalize_by='max',
                          x_rotation_max_angel_deg=20,
                          y_rotation_max_angel_deg=20,
