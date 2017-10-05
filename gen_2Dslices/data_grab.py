@@ -64,6 +64,9 @@ def all_data(sc_dir, data_dir):
     ff = open('{0}/rater_2.tsv'.format(sc_dir)).readlines()
     return get_all_data(ff, data_dir)
 
+def all_data_no_crop(sc_dir, data_dir):
+    ff = open('{0}/rater_2.tsv'.format(sc_dir)).readlines()
+    return get_all_data_no_crop(ff, data_dir)
 
 if __name__ == '__main__':
     all_data()
