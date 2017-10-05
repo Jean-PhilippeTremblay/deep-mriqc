@@ -111,8 +111,8 @@ class NumpyArrayIterator(Iterator):
         print('Index Array - {0}'.format(index_array))
         for i, j in enumerate(index_array):
             x = self.x[j]
-            x = self.image_data_generator.do_crop(x)
-            x = self.image_data_generator.do_resample(x)
+            #x = self.image_data_generator.do_crop(x)
+            #x = self.image_data_generator.do_resample(x)
             x = self.image_data_generator.do_random_transform(x)
             batch_x[i] = x
         if self.y is None:
