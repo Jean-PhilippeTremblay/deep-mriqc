@@ -40,7 +40,7 @@ def get_data_no_crop(sub_id_lab, data_dir):
         sub_img = resample_img(file_path, '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=fixed))
     except:
         return None, None
-    return sub_img.get_data(), label
+    return numpy.asarray(sub_img.get_data()), label
 
 def get_all_data(sub_list, data_dir):
     pool = Pool()
