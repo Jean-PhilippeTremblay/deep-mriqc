@@ -65,7 +65,7 @@ def saveExperiment(fileName, data):
 def get_datasets(test=True):
     import keras
     ##Grabbing
-    dat, lab = data_grab.all_data_no_crop(currentdir, data_dir)
+    dat, lab = data_grab.all_data(currentdir, data_dir)
     lab = [0 if x==-1 else 1 for x in lab]
     dat_n = np.array(dat)
     lab_n = np.array(lab)
