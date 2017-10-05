@@ -9,8 +9,8 @@ def get_slices_normalised(slices, nif):
     mid_slice_y = round(data.shape[1] / 2)
     start_slice_y = mid_slice_y - round(slices / 2)
     sliced = data[start_slice_x:start_slice_x+slices,start_slice_y:start_slice_y+slices,start_slice_y:start_slice_y+slices]
-    max = numpy.max(sliced[:])
-    return sliced/max
+
+    return sliced
 
 def resample_img(moving, fixed):
     return image.resample_to_img(moving, fixed)
@@ -27,7 +27,7 @@ def get_data(sub_id_lab, data_dir):
         sub_img = resample_img(file_path, '{base}/{file_base}.nii.gz'.format(base=base_dir, file_base=fixed))
     except:
         return None, None
-    return get_slices_normalised(80, sub_img), label
+    return get_slices_normalised(150, sub_img), label
 
 def get_data_no_crop(sub_id_lab, data_dir):
     sub_id_lab = sub_id_lab.strip()
