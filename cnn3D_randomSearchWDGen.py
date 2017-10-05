@@ -80,6 +80,16 @@ def get_datasets(test=True):
         x_train = dat_n[X_train_idx]
         x_test = dat_n[X_test_idx]
 
+        x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
+        x_test = x_test.reshape(x_test.shape[0], 80, 80, 80, 1)
+
+        x_train = x_train.astype('float32')
+        x_test = x_test.astype('float32')
+
+        x_train /= 255
+        x_test /= 255
+
+        print('x_train shape:', x_train.shape)
         print(x_train.shape[0], 'train samples')
         print(x_test.shape[0], 'test samples')
 
@@ -88,7 +98,6 @@ def get_datasets(test=True):
         y_test = keras.utils.to_categorical(y_test, num_classes)
     else:
         x_train = dat_n
-        x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
         x_train = x_train.astype('float32')
         x_train /= 255
         print('x_train shape:', x_train.shape)
