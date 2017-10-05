@@ -80,8 +80,8 @@ def get_datasets(test=True):
         x_train = dat_n[X_train_idx]
         x_test = dat_n[X_test_idx]
 
-        x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
-        x_test = x_test.reshape(x_test.shape[0], 80, 80, 80, 1)
+        x_train = x_train.reshape(x_train.shape[0], 100, 100, 100, 1)
+        x_test = x_test.reshape(x_test.shape[0], 100, 100, 100, 1)
 
         x_train = x_train.astype('float32')
         x_test = x_test.astype('float32')
@@ -133,8 +133,8 @@ def split_train_test(all_x, all_y):
     x_train = all_x[X_train_idx]
     x_test = all_x[X_test_idx]
 
-    x_train = x_train.reshape(x_train.shape[0], 80, 80, 80, 1)
-    x_test = x_test.reshape(x_test.shape[0], 80, 80, 80, 1)
+    x_train = x_train.reshape(x_train.shape[0], 100, 100, 100, 1)
+    x_test = x_test.reshape(x_test.shape[0], 100, 100, 100, 1)
 
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
