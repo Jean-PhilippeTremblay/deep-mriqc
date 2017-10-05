@@ -111,7 +111,6 @@ class NumpyArrayIterator(Iterator):
         print('Index Array - {0}'.format(index_array))
         for i, j in enumerate(index_array):
             x = self.x[j]
-            print('PASSED_TO_DG_SHAPE - {0}'.format(x.shape))
             x = self.image_data_generator.do_crop(x)
             x = self.image_data_generator.do_resample(x)
             x = self.image_data_generator.do_random_transform(x)
@@ -149,6 +148,7 @@ class ImageGenerator(object):
 
     def do_crop(self, x):
         if self.crop:
+            x = x[:, :, :, 0]
             mid_slice_x = round(x.shape[0] / 2)
             start_slice_x = mid_slice_x - round(self.crop_size[0] / 2)
             mid_slice_y = round(x.shape[1] / 2)
@@ -159,13 +159,14 @@ class ImageGenerator(object):
                      start_slice_z:start_slice_z + self.crop_size[2]]
             if type(self.normalize_by) == str and self.normalize_by in ['max', 'mean', 'min', 'one']:
                 if self.normalize_by == 'max':
-                    return sliced / np.max(sliced[:])
+                    x= sliced / np.max(sliced[:])
                 elif self.normalize_by == 'mean':
-                    return sliced / np.mean(sliced[:])
+                    x= sliced / np.mean(sliced[:])
                 elif self.normalize_by == 'min':
-                    return sliced / np.min(sliced[:])
+                    x= sliced / np.min(sliced[:])
                 elif self.normalize_by == 'one':
-                    return sliced / 1
+                    x= sliced / 1
+                return np.expand_dims(x, axis=3)
             else:
                 raise Exception('Normalization param error must be in {0}'.format(['max', 'mean', 'min', 'one']))
         else:
@@ -175,7 +176,7 @@ class ImageGenerator(object):
         if self.resample:
             x = x[:,:,:,0]
             x = transform.resize(x, self.resample_size, preserve_range=True, mode='constant')
-            return np.expand_dims(x, axis=3).shape
+            return np.expand_dims(x, axis=3)
         else:
             return x
 
@@ -207,4 +208,4 @@ class ImageGenerator(object):
 
         full_rot_mat = np.dot(np.dot(x_rot_mat, y_rot_mat), z_rot_mat)
         x = ndimage.affine_transform(x, full_rot_mat)
-        return np.expand_dims(x, axis=3).shape
+        return np.expand_dims(x, axis=3)
