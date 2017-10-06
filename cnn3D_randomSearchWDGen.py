@@ -398,7 +398,7 @@ def do_run(i, x_train=None, y_train=None, res_dict=None, datagen_settings=None):
         print('Using data augmentation.')
         history = model.fit_generator(datagen_train.flow(x_train, y_train),
                                       steps_per_epoch=len(x_train) / 32,
-                                      validation_data=datagen_test,
+                                      validation_data=datagen_test.flow(x_test, y_test),
                                       validation_steps=len(x_test)/32,
                                 epochs=epochs,
                             callbacks=[early_stopping, reduce_lr])
